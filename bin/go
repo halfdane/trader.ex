@@ -1,0 +1,7 @@
+#!/bin/bash
+heroku auth:whoami || heroku auth:login
+
+unset SSL_CERT_FILE
+
+git push heroku master
+heroku run "POOL_SIZE=2 mix ecto.migrate"

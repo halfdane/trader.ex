@@ -13,7 +13,7 @@ defmodule Trader.Application do
       # Start the endpoint when the application starts
       supervisor(TraderWeb.Endpoint, []),
       # Start your own worker by calling: Trader.Worker.start_link(arg1, arg2, arg3)
-      # worker(Trader.Worker, [arg1, arg2, arg3]),
+      worker(Trader.Worker, []),
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
