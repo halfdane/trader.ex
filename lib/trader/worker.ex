@@ -2,8 +2,21 @@ defmodule Trader.Worker do
   use GenServer
   require Logger
 
+  # Client api
+
   def start_link do
-    GenServer.start_link(__MODULE__, %{})
+    GenServer.start_link(__MODULE__, %{}, name: :binance_ticker)
+  end
+
+  def get() do
+    GenServer.call(:binance_ticker, :get)
+  end
+
+  # GenServer callbacks
+
+  def handle_call(:get, _from, state) do
+    %{last_order: order} = state
+    {:reply, order, state}
   end
 
   def init(state) do
@@ -15,14 +28,13 @@ defmodule Trader.Worker do
   end
 
   def handle_info(:work, state) do
-      uri(:trades, %{symbol: :ETHBTC, limit: 1})
+      order = uri(:trades, %{symbol: :ETHBTC, limit: 1})
         |> binance
         |> Enum.at(-1)
         |> addPercentages
-        |> log
 
       schedule_work() # Reschedule once more
-      {:noreply, state}
+      {:noreply, %{last_order: order}}
   end
 
   defp addPercentages(order) do
@@ -60,6 +72,7 @@ defmodule Trader.Worker do
 
   defp log(object) do
     Logger.info "#{inspect(object)}"
+    object
   end
 
 end

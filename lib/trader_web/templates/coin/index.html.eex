@@ -1,3 +1,4 @@
 <div class="jumbotron">
   <h2>Trading <%= @symbol %>!</h2>
 </div>
+<div id="order"></div>
