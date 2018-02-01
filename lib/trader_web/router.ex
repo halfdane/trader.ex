@@ -19,6 +19,7 @@ defmodule TraderWeb.Router do
     get "/", PageController, :index
     get "/hello", HelloController, :index
     get "/hello/:messenger", HelloController, :show
+    get "/coin/:symbol", CoinController, :index
   end
 
   # Other scopes may use custom stacks.
