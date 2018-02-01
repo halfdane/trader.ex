@@ -57,7 +57,10 @@ socket.connect()
 let channel = socket.channel("coin:lobby", {})
 
 channel.on("new_msg", payload => {
-  orderContainer.innerText = `${new Date(payload.content.time).toString()} ${payload.content.price} ${payload.content.minPrice} ${payload.content.maxPrice}`
+  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+  const date = new Date(payload.content.time)
+
+  orderContainer.innerText = `${date.toLocaleDateString('de-DE')} ${date.toLocaleTimeString('de-DE')} ${payload.content.price} ${payload.content.minPrice} ${payload.content.maxPrice}`
 })
 
 channel.join()
