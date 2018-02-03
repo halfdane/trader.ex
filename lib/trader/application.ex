@@ -12,8 +12,7 @@ defmodule Trader.Application do
       supervisor(Trader.Repo, []),
       # Start the endpoint when the application starts
       supervisor(TraderWeb.Endpoint, []),
-      # Start your own worker by calling: Trader.Worker.start_link(arg1, arg2, arg3)
-      worker(Trader.Worker, []),
+      {Trader.CoinTicker, ['ethbtc']}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

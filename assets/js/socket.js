@@ -54,13 +54,16 @@ let orderContainer = document.querySelector("#order")
 socket.connect()
 
 // Now that you are connected, you can join channels with a topic:
-let channel = socket.channel("coin:lobby", {})
+let symbol = orderContainer.dataset.symbol;
+let channel = socket.channel(`coin:${symbol}`, {})
 
 channel.on("new_msg", payload => {
-  const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-  const date = new Date(payload.content.time)
+  const date = new Date(payload.trade_time)
 
-  orderContainer.innerText = `${date.toLocaleDateString('de-DE')} ${date.toLocaleTimeString('de-DE')} ${payload.content.price} ${payload.content.minPrice} ${payload.content.maxPrice}`
+  const min = p => p - (p*0.01)
+  const max = p => p + (p*0.03)
+
+  orderContainer.innerText = `${date.toLocaleDateString('de-DE')} ${date.toLocaleTimeString('de-DE')} ${payload.price} ${min(payload.price)} ${max(payload.price)}`
 })
 
 channel.join()
