@@ -23,7 +23,7 @@ defmodule Trader.CoinTicker do
     "e" => event_type,  # (aggTrade)
     "E" => event_time,
     "s" => symbol,
-    "a" => aggregate_trade_id,
+    "a" => _aggregate_trade_id,
     "p" => price_string,
     "q" => quantity_string,
     "f" => _first_trade_id,
@@ -37,6 +37,7 @@ defmodule Trader.CoinTicker do
       symbol: symbol,
       price: String.to_float(price_string),
       quantity: String.to_float(quantity_string),
+      event_time: event_time,
       trade_time: trade_time,
       is_market_maker: market_maker
     }
