@@ -4,7 +4,11 @@ defmodule Trader.CoinTicker do
 
   def start_link(symbol) do
     url = "wss://stream2.binance.com:9443/ws/#{symbol}@aggTrade"
-    WebSockex.start_link("#{url}", __MODULE__, %{symbol: symbol})
+    WebSockex.start_link("#{url}", __MODULE__, %{symbol: symbol}, name: via_tuple(symbol))
+  end
+
+  defp via_tuple(symbol) do
+    {:via, :gproc, {:n, :l, {:symbol, symbol}}}
   end
 
   def handle_frame({type, msg}, %{symbol: symbol}=state) do

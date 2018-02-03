@@ -43,7 +43,8 @@ defmodule Trader.Mixfile do
       {:cowboy, "~> 1.0"},
       {:httpoison, "~> 1.0"},
       {:poison, "~> 3.1"},
-      {:websockex, "~> 0.4.0"}
+      {:websockex, "~> 0.4.0"},
+      {:gproc, "0.3.1"}
     ]
   end
 
