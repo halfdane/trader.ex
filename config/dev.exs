@@ -56,3 +56,7 @@ config :trader, Trader.Repo,
   database: "trader_dev",
   hostname: "localhost",
   pool_size: 10
+
+config :trader, Trader.Auth.Guardian,
+  issuer: "Trader", # Name of your app/company/product
+  secret_key: "LEqB8QT2M9KfGlkuKtyZHcjloy2W+Zts5d1FRFdBvM5EkIPykaj+7YJLzU30f4DU"

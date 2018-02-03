@@ -29,6 +29,10 @@ config :trader, Trader.Repo,
   pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
   ssl: true
 
+config :trader, Trader.Auth.Guardian,
+  issuer: "Trader", # Name of your app/company/product
+  secret_key: System.get_env("JWT_SECRET")
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key

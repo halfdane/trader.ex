@@ -44,7 +44,10 @@ defmodule Trader.Mixfile do
       {:httpoison, "~> 1.0"},
       {:poison, "~> 3.1"},
       {:websockex, "~> 0.4.0"},
-      {:gproc, "0.3.1"}
+      {:gproc, "0.3.1"},
+      {:guardian, "~> 1.0-beta"},
+      {:comeonin, "~> 4.0"},
+      {:bcrypt_elixir, "~> 0.12"}
     ]
   end
 
