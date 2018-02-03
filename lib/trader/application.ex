@@ -12,7 +12,8 @@ defmodule Trader.Application do
       supervisor(Trader.Repo, []),
       # Start the endpoint when the application starts
       supervisor(TraderWeb.Endpoint, []),
-      {Trader.CoinTicker.Supervisor, []}
+      supervisor(Trader.CoinTicker.Supervisor, []),
+      worker(Task, [&Trader.CoinTicker.Supervisor.Starter.start_tickers_of_binance/0], restart: :temporary)
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
