@@ -8,9 +8,9 @@ defmodule Trader.CoinTicker.Supervisor do
     children = [
       worker(Trader.CoinTicker, [])
     ]
+    result = supervise(children, strategy: :simple_one_for_one)
     Task.start_link(&start_tickers_of_binance/0)
-
-    supervise(children, strategy: :simple_one_for_one)
+    result
   end
 
   def handle_info(:start_tickers, config) do
@@ -33,6 +33,7 @@ defmodule Trader.CoinTicker.Supervisor do
     body
       |> Poison.decode!
       |> extract_symbols
+      |> Enum.slice(0, 3)
       |> Enum.map(&start_ticker/1)
   end
 
