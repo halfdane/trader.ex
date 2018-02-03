@@ -8,8 +8,7 @@ defmodule TraderWeb.CoinChannel do
   end
 
   def update_trade(trade, symbol) do
-    Logger.info "info about #{symbol}: #{inspect(is_binary symbol)}"
-    room = "coin:#{String.upcase(symbol, :ascii)}"
+    room = "coin:#{symbol.symbol}"
     TraderWeb.Endpoint.broadcast(room, "new_msg", trade)
   end
 

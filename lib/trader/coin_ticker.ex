@@ -3,8 +3,9 @@ defmodule Trader.CoinTicker do
   require Logger
 
   def start_link(symbol) do
-    url = "wss://stream2.binance.com:9443/ws/#{symbol}@aggTrade"
-    WebSockex.start_link("#{url}", __MODULE__, %{symbol: symbol}, name: via_tuple(symbol))
+    url = "wss://stream2.binance.com:9443/ws/#{String.downcase(symbol.symbol)}@aggTrade"
+    Logger.info "Starting ticker for #{inspect symbol}: #{url}"
+    WebSockex.start_link(url, __MODULE__, %{symbol: symbol}, name: via_tuple(symbol.symbol))
   end
 
   defp via_tuple(symbol) do

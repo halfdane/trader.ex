@@ -19,8 +19,6 @@ defmodule Trader.Application do
     # for other strategies and supported options
     opts = [strategy: :one_for_one, name: Trader.Supervisor]
     Supervisor.start_link(children, opts)
-    Trader.CoinTicker.Supervisor.start_ticker("ethbtc")
-    Trader.CoinTicker.Supervisor.start_ticker("iostbtc")
   end
 
   # Tell Phoenix to update the endpoint configuration
