@@ -12,7 +12,7 @@ defmodule Trader.CoinTicker do
     {:via, :gproc, {:n, :l, {:symbol, symbol}}}
   end
 
-  def handle_frame({type, msg}, %{symbol: symbol}=state) do
+  def handle_frame({_type, msg}, %{symbol: symbol}=state) do
     Poison.decode!(msg)
       |> to_order
       |> TraderWeb.CoinChannel.update_trade(symbol)
@@ -31,7 +31,7 @@ defmodule Trader.CoinTicker do
     "T" => trade_time,
     "m" => market_maker,
     "M" => _api_says_to_ignore
-  } = order) do
+  }) do
     %{
       event_type: event_type,
       symbol: symbol,

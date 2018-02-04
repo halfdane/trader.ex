@@ -28,7 +28,16 @@ defmodule Trader.CoinTicker.Supervisor.Starter do
     body
       |> Poison.decode!
       |> extract_symbols
+      |> restrict_tickers
       |> Enum.map(&Trader.CoinTicker.Supervisor.start_ticker/1)
+  end
+
+  defp restrict_tickers(all_symbols) do
+    max_symbol_count = Application.get_env(:trader, Trader.CoinTicker)[:max_symbol_count]
+    case max_symbol_count do
+      x when x > 0 -> Enum.slice(all_symbols, 0, x)
+      _            -> all_symbols
+    end
   end
 
   defp extract_symbols(exchange_info) do

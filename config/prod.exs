@@ -33,6 +33,9 @@ config :trader, Trader.Auth.Guardian,
   issuer: "Trader", # Name of your app/company/product
   secret_key: System.get_env("JWT_SECRET")
 
+config :trader, Trader.CoinTicker,
+  max_symbol_count: -1
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key

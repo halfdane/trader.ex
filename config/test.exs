@@ -17,3 +17,6 @@ config :trader, Trader.Repo,
   database: "trader_test",
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
+
+config :trader, Trader.CoinTicker,
+  max_symbol_count: 1
