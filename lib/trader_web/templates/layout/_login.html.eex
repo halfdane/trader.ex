@@ -1,0 +1,6 @@
+<%= if @conn.assigns[:current_user] == nil do %>
+
+<% else %>
+  <h1>Hello <%= @conn.assigns[:current_user].username%>!</h1>
+  <span><%= link "Logout", to: user_path(@conn, :logout), method: :post%></span>
+<% end %>

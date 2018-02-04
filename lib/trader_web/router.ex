@@ -3,6 +3,7 @@ defmodule TraderWeb.Router do
 
   pipeline :auth do
     plug Trader.Auth.Pipeline
+    plug Trader.Auth.CurrentUser
   end
 
   pipeline :ensure_auth do
@@ -26,17 +27,21 @@ defmodule TraderWeb.Router do
     pipe_through [:browser, :auth]
 
     get "/", PageController, :index
-    post "/", PageController, :login
-    post "/logout", PageController, :logout
 
     get "/hello", HelloController, :index
     get "/hello/:messenger", HelloController, :show
     get "/coin/:symbol", CoinController, :index
+
+    resources "/users", UserController, only: [:show, :new, :create]
+
+    resources "/sessions", SessionController, only: [:new, :create, :delete]
+
   end
 
   # Definitely logged in scope
   scope "/", TraderWeb do
     pipe_through [:browser, :auth, :ensure_auth]
-    get "/secret", PageController, :secret
+
+
   end
 end
