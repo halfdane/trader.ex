@@ -1,5 +1,6 @@
 defmodule TraderWeb.Router do
   use TraderWeb, :router
+  require Logger
 
   pipeline :auth do
     plug Trader.Auth.Pipeline
@@ -32,7 +33,9 @@ defmodule TraderWeb.Router do
     get "/hello/:messenger", HelloController, :show
     get "/coin/:symbol", CoinController, :index
 
-    resources "/users", UserController, only: [:show, :new, :create]
+
+    get "/users/new", UserController, :new
+    post "/users", UserController, :create
 
     resources "/sessions", SessionController, only: [:new, :create, :delete]
 
@@ -42,6 +45,10 @@ defmodule TraderWeb.Router do
   scope "/", TraderWeb do
     pipe_through [:browser, :auth, :ensure_auth]
 
-
+    get "/user/edit", UserController, :edit
+    get "/user/", UserController, :show
+    patch "/user/", UserController, :update
+    put "/user/", UserController, :update
+    delete "/user/", UserController, :delete
   end
 end

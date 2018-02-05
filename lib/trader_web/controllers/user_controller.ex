@@ -22,43 +22,45 @@ defmodule TraderWeb.UserController do
       {:ok, user} ->
         conn
         |> put_flash(:info, "User created successfully.")
-        |> redirect(to: user_path(conn, :show, user))
+        |> Trader.Auth.Guardian.Plug.sign_in(user)
+        |> redirect(to: user_path(conn, :show))
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
     end
   end
 
-  def show(conn, %{"id" => id}) do
-    user = Auth.get_user!(id)
+  def show(conn, _params) do
+    user = conn.assigns.current_user
     render(conn, "show.html", user: user)
   end
 
-  def edit(conn, %{"id" => id}) do
-    user = Auth.get_user!(id)
+  def edit(conn, _params) do
+    user = conn.assigns.current_user
     changeset = Auth.change_user(user)
     render(conn, "edit.html", user: user, changeset: changeset)
   end
 
-  def update(conn, %{"id" => id, "user" => user_params}) do
-    user = Auth.get_user!(id)
+  def update(conn, %{"user" => user_params}) do
+    user = conn.assigns.current_user
 
     case Auth.update_user(user, user_params) do
       {:ok, user} ->
         conn
         |> put_flash(:info, "User updated successfully.")
-        |> redirect(to: user_path(conn, :show, user))
+        |> redirect(to: user_path(conn, :show))
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", user: user, changeset: changeset)
+        render(conn, "edit.html", changeset: changeset)
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    user = Auth.get_user!(id)
+  def delete(conn, _params) do
+    user = conn.assigns.current_user
     {:ok, _user} = Auth.delete_user(user)
 
     conn
+    |> Trader.Auth.Guardian.Plug.sign_out()
     |> put_flash(:info, "User deleted successfully.")
-    |> redirect(to: user_path(conn, :index))
+    |> redirect(to: page_path(conn, :index))
   end
 
 end
