@@ -8,6 +8,7 @@ defmodule Trader.Auth.User do
   schema "users" do
     field :password, :string
     field :username, :string
+    field :binance_api_key, :string
 
     timestamps()
   end
@@ -15,7 +16,7 @@ defmodule Trader.Auth.User do
   @doc false
   def changeset(%User{} = user, attrs) do
     user
-    |> cast(attrs, [:username, :password])
+    |> cast(attrs, [:username, :password, :binance_api_key])
     |> validate_required([:username, :password])
     |> put_pass_hash()
   end

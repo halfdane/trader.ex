@@ -12,9 +12,9 @@
   </div>
 
   <div class="form-group">
-    <%= label f, :password, class: "control-label" %>
-    <%= text_input f, :password, class: "form-control" %>
-    <%= error_tag f, :password %>
+    <%= label f, :binance_api_key, class: "control-label" %>
+    <%= text_input f, :binance_api_key, class: "form-control" %>
+    <%= error_tag f, :binance_api_key %>
   </div>
 
   <div class="form-group">
