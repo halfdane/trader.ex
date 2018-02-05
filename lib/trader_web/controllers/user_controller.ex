@@ -3,7 +3,6 @@ defmodule TraderWeb.UserController do
 
   alias Trader.Auth
   alias Trader.Auth.User
-  alias Trader.Auth.Guardian
 
   plug :scrub_params, "user" when action in [:create]
 
@@ -44,7 +43,7 @@ defmodule TraderWeb.UserController do
     user = conn.assigns.current_user
 
     case Auth.update_user(user, user_params) do
-      {:ok, user} ->
+      {:ok, _user} ->
         conn
         |> put_flash(:info, "User updated successfully.")
         |> redirect(to: user_path(conn, :show))
