@@ -47,7 +47,8 @@ defmodule Trader.Mixfile do
       {:gproc, "0.3.1"},
       {:guardian, "~> 1.0.1"},
       {:comeonin, "~> 4.0"},
-      {:bcrypt_elixir, "~> 0.12"}
+      {:bcrypt_elixir, "~> 0.12"},
+      {:distillery, "~> 1.0.0"}
     ]
   end
 
