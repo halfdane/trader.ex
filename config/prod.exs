@@ -18,7 +18,7 @@ config :trader, TraderWeb.Endpoint,
   url: [scheme: "http", host: "localhost", port: 8000],
   cache_static_manifest: "priv/static/cache_manifest.json",
   server: true,
-  secret_key_base: Map.fetch!(System.get_env(), "SECRET_KEY_BASE")
+  secret_key_base: "${SECRET_KEY_BASE}"
 
 # Do not print debug messages in production
 config :logger, level: :info
