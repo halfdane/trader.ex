@@ -32,7 +32,7 @@ config :trader, Trader.Repo,
 
 config :trader, Trader.Auth.Guardian,
   issuer: "Trader", # Name of your app/company/product
-  secret_key: System.get_env("JWT_SECRET")
+  secret_key: "${JWT_SECRET}"
 
 config :trader, Trader.CoinTicker,
   max_symbol_count: -1
