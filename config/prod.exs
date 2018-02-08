@@ -15,7 +15,7 @@ use Mix.Config
 # which you typically run after static files are built.
 config :trader, TraderWeb.Endpoint,
   load_from_system_env: true,
-  url: [scheme: "http", host: "localhost", port: 8000],
+  url: [scheme: "https", host: "suspicious-petty-phoenix.gigalixirapp.com", port: 443],
   cache_static_manifest: "priv/static/cache_manifest.json",
   server: true,
   secret_key_base: "${SECRET_KEY_BASE}"
