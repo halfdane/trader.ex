@@ -14,7 +14,7 @@ defmodule Trader.Order.Binance do
     end
   end
 
-  defp post_binance(url, params) do
+  defp post_binance(url, params, binance_access) do
     argument_string =
       params
       |> Map.to_list()
@@ -25,15 +25,18 @@ defmodule Trader.Order.Binance do
     signature =
       :crypto.hmac(
         :sha256,
-        Application.get_env(:binance, :secret_key),
+        binance_access.secret,
         argument_string
       )
       |> Base.encode16()
 
     body = "#{argument_string}&signature=#{signature}"
 
+
+    IO.puts "curl -H 'X-MBX-APIKEY: #{binance_access.key}' -X POST '#{@endpoint}#{url}' -d '#{body}'"
+
     case HTTPoison.post("#{@endpoint}#{url}", body, [
-           {"X-MBX-APIKEY", Application.get_env(:binance, :api_key)}
+           {"X-MBX-APIKEY", binance_access.key}
          ]) do
       {:error, err} ->
         {:error, {:http_error, err}}
@@ -89,6 +92,7 @@ defmodule Trader.Order.Binance do
         side,
         type,
         quantity,
+        binance_access,
         price \\ nil,
         time_in_force \\ nil,
         new_client_order_id \\ nil,
@@ -130,7 +134,7 @@ defmodule Trader.Order.Binance do
       |> Map.merge(unless(is_nil(time_in_force), do: %{timeInForce: time_in_force}, else: %{}))
       |> Map.merge(unless(is_nil(price), do: %{price: price}, else: %{}))
 
-    case post_binance("/api/v3/order", arguments) do
+    case post_binance("/api/v3/order/test", arguments, binance_access) do
       {:ok, %{"code" => code, "msg" => msg}} ->
         {:error, {:binance_error, %{code: code, msg: msg}}}
 
@@ -146,11 +150,11 @@ defmodule Trader.Order.Binance do
 
   Returns `{:ok, %{}}` or `{:error, reason}`
   """
-  def order_limit_buy(symbol, quantity, price)
+  def order_limit_buy(symbol, quantity, price, binance_access)
       when is_binary(symbol)
       when is_number(quantity)
       when is_number(price) do
-    create_order(symbol, "BUY", "LIMIT", quantity, price, "GTC")
+    create_order(symbol, "BUY", "LIMIT", quantity, binance_access, price, "GTC")
   end
 
   @doc """
@@ -160,11 +164,11 @@ defmodule Trader.Order.Binance do
 
   Returns `{:ok, %{}}` or `{:error, reason}`
   """
-  def order_limit_sell(symbol, quantity, price)
+  def order_limit_sell(symbol, quantity, price, binance_access)
       when is_binary(symbol)
       when is_number(quantity)
       when is_number(price) do
-    create_order(symbol, "SELL", "LIMIT", quantity, price, "GTC")
+    create_order(symbol, "SELL", "LIMIT", quantity, binance_access, price, "GTC")
   end
 
   @doc """
@@ -174,10 +178,10 @@ defmodule Trader.Order.Binance do
 
   Returns `{:ok, %{}}` or `{:error, reason}`
   """
-  def order_market_buy(symbol, quantity)
+  def order_market_buy(symbol, quantity, binance_access)
       when is_binary(symbol)
       when is_number(quantity) do
-    create_order(symbol, "BUY", "MARKET", quantity)
+    create_order(symbol, "BUY", "MARKET", quantity, binance_access)
   end
 
   @doc """
@@ -187,10 +191,10 @@ defmodule Trader.Order.Binance do
 
   Returns `{:ok, %{}}` or `{:error, reason}`
   """
-  def order_market_sell(symbol, quantity)
+  def order_market_sell(symbol, quantity, binance_access)
       when is_binary(symbol)
       when is_number(quantity) do
-    create_order(symbol, "SELL", "MARKET", quantity)
+    create_order(symbol, "SELL", "MARKET", quantity, binance_access)
   end
 
 end
