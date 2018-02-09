@@ -12,6 +12,10 @@
     <%= @user.binance_api_key %>
   </li>
 
+  <li>
+    <strong>Binance api secret:</strong>
+    <%= @user.binance_api_secret %>
+  </li>
 </ul>
 
 <span><%= link "Edit", to: user_path(@conn, :edit) %></span>
