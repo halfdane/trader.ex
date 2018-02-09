@@ -1,3 +1,0 @@
-<div class="jumbotron">
-  <h2>Trading the world for <%= @messenger %>!</h2>
-</div>

@@ -29,8 +29,6 @@ defmodule TraderWeb.Router do
 
     get "/", PageController, :index
 
-    get "/hello", HelloController, :index
-    get "/hello/:messenger", HelloController, :show
     get "/coin/:symbol", CoinController, :index
 
 
@@ -38,7 +36,6 @@ defmodule TraderWeb.Router do
     post "/users", UserController, :create
 
     resources "/sessions", SessionController, only: [:new, :create, :delete]
-
   end
 
   # Definitely logged in scope
@@ -50,5 +47,7 @@ defmodule TraderWeb.Router do
     patch "/user/", UserController, :update
     put "/user/", UserController, :update
     delete "/user/", UserController, :delete
+
+    resources "/orders/", OrdersController
   end
 end
