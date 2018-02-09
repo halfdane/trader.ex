@@ -51,6 +51,9 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 // Finally, pass the token on connect as below. Or remove it
 // from connect if you don't care about authentication.
 let orderContainer = document.querySelector("#order")
+let order_buy_price = document.querySelector("#order_buy_price")
+let order_lower_limit = document.querySelector("#order_lower_limit")
+let order_upper_limit = document.querySelector("#order_upper_limit")
 socket.connect()
 
 // Now that you are connected, you can join channels with a topic:
@@ -63,7 +66,10 @@ channel.on("new_msg", payload => {
   const min = p => p - (p*0.01)
   const max = p => p + (p*0.03)
 
-  orderContainer.innerText = `${date.toLocaleDateString('de-DE')} ${date.toLocaleTimeString('de-DE')} ${payload.price} ${min(payload.price)} ${max(payload.price)}`
+  orderContainer.innerText = `${date.toLocaleDateString('de-DE')} ${date.toLocaleTimeString('de-DE')}`
+  order_buy_price.value = payload.price
+  order_lower_limit.value = min(payload.price)
+  order_upper_limit.value = max(payload.price)
 })
 
 channel.join()

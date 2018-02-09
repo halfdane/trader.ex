@@ -48,6 +48,6 @@ defmodule TraderWeb.Router do
     put "/user/", UserController, :update
     delete "/user/", UserController, :delete
 
-    resources "/orders/", OrdersController
+    post "/orders/", OrdersController, :create
   end
 end
