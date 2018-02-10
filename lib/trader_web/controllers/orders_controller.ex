@@ -8,11 +8,12 @@ defmodule TraderWeb.OrdersController do
                                     "upper_limit" => upper_limit}}) do
     user = conn.assigns.current_user
     binance_access = %{key: user.binance_api_key, secret: user.binance_api_secret}
-    Logger.info "new order: #{symbol} #{user.username} #{user.binance_api_key} #{user.binance_api_secret}"
 
-    Trader.Order.Binance.order_limit_buy(symbol, "100%", buy_price, binance_access) |> log
-    Trader.Order.Binance.order_limit_sell(symbol, "100%", lower_limit, binance_access) |> log
-    Trader.Order.Binance.order_limit_sell(symbol, "100%", upper_limit, binance_access) |> log
+    all = "0.035"
+    upper_limit = "0.103515"
+    #Trader.Order.Binance.order_limit_buy(binance_access, symbol, all, buy_price) |> log
+    Trader.Order.Binance.order_limit_sell(binance_access, symbol, all, upper_limit) |> log
+    #Trader.Order.Binance.order_limit_sell(binance_access, symbol, all, upper_limit) |> log
 
     redirect(conn, to: coin_path(conn, :index, symbol))
   end

@@ -1,11 +1,12 @@
 defmodule Trader.Order.Binance do
   @endpoint "https://api.binance.com"
+  require Logger
 
-  defp get_binance(url) do
-    case HTTPoison.get("#{@endpoint}#{url}") do
+  defp get_binance(url, params \\ [], binance_auth \\ %{}) do
+    signed = sign(params, binance_auth)
+    case HTTPoison.get("#{@endpoint}#{url}?#{signed.query}", signed.headers) do
       {:error, err} ->
         {:error, {:http_error, err}}
-
       {:ok, response} ->
         case Poison.decode(response.body) do
           {:ok, data} -> {:ok, data}
@@ -14,39 +15,45 @@ defmodule Trader.Order.Binance do
     end
   end
 
-  defp post_binance(url, params, binance_access) do
-    argument_string =
-      params
-      |> Map.to_list()
-      |> Enum.map(fn x -> Tuple.to_list(x) |> Enum.join("=") end)
-      |> Enum.join("&")
-
-    # generate signature
-    signature =
-      :crypto.hmac(
-        :sha256,
-        binance_access.secret,
-        argument_string
-      )
-      |> Base.encode16()
-
-    body = "#{argument_string}&signature=#{signature}"
-
-
-    IO.puts "curl -H 'X-MBX-APIKEY: #{binance_access.key}' -X POST '#{@endpoint}#{url}' -d '#{body}'"
-
-    case HTTPoison.post("#{@endpoint}#{url}", body, [
-           {"X-MBX-APIKEY", binance_access.key}
-         ]) do
+  defp post_binance(url, params, binance_auth) do
+    signed = sign(params, binance_auth)
+    Logger.info inspect signed
+    case HTTPoison.post("#{@endpoint}#{url}", signed.query, signed.headers) do
       {:error, err} ->
         {:error, {:http_error, err}}
-
       {:ok, response} ->
         case Poison.decode(response.body) do
           {:ok, data} -> {:ok, data}
           {:error, err} -> {:error, {:poison_decode_error, err}}
         end
     end
+  end
+
+  def sign(params, binance_access) when binance_access == %{} do
+    %{query: "#{create_query_string(params)}", headers:  [] }
+  end
+
+  def sign(params, binance_access) do
+    signature = params
+      |> create_query_string
+      |> calculate_signature(binance_access)
+
+    query = params ++ [signature: signature]
+      |> create_query_string
+
+    %{query: "#{query}", headers:  [{"X-MBX-APIKEY", binance_access.key}] }
+  end
+
+  def create_query_string(params) do
+    params
+      |> Enum.map(fn x -> Tuple.to_list(x) |> Enum.join("=") end)
+      |> Enum.join("&")
+  end
+
+  def calculate_signature(aString, binance_access) do
+      :crypto.hmac(:sha256, binance_access.secret, aString)
+        |> Base.encode16()
+        |> String.downcase
   end
 
   # Server
@@ -76,6 +83,71 @@ defmodule Trader.Order.Binance do
     end
   end
 
+  # Ticker
+
+  @doc """
+  Get all symbols and current prices listed in binance
+
+  Returns `{:ok, [%Binance.SymbolPrice{}]}` or `{:error, reason}`.
+
+  ## Example
+  ```
+  {:ok,
+    [%Binance.SymbolPrice{price: "0.07579300", symbol: "ETHBTC"},
+     %Binance.SymbolPrice{price: "0.01670200", symbol: "LTCBTC"},
+     %Binance.SymbolPrice{price: "0.00114550", symbol: "BNBBTC"},
+     %Binance.SymbolPrice{price: "0.00640000", symbol: "NEOBTC"},
+     %Binance.SymbolPrice{price: "0.00030000", symbol: "123456"},
+     %Binance.SymbolPrice{price: "0.04895000", symbol: "QTUMETH"},
+     ...]}
+  ```
+  """
+  def get_all_prices() do
+    get_binance("/api/v1/ticker/allPrices")
+  end
+
+  @doc """
+  Retrieves the current ticker information for the given trade pair.
+
+  Symbol can be a binance symbol in the form of `"ETHBTC"` or `%Binance.TradePair{}`.
+
+  Returns `{:ok, %Binance.Ticker{}}` or `{:error, reason}`
+
+  ## Example
+  ```
+  {:ok,
+    %Binance.Ticker{ask_price: "0.07548800", bid_price: "0.07542100",
+      close_time: 1515391124878, count: 661676, first_id: 16797673,
+      high_price: "0.07948000", last_id: 17459348, last_price: "0.07542000",
+      low_price: "0.06330000", open_price: "0.06593800", open_time: 1515304724878,
+      prev_close_price: "0.06593800", price_change: "0.00948200",
+      price_change_percent: "14.380", volume: "507770.18500000",
+      weighted_avg_price: "0.06946930"}}
+  ```
+  """
+  def get_ticker(symbol) when is_binary(symbol) do
+    get_binance("/api/v1/ticker/24hr", [symbol: symbol])
+  end
+
+  def user_info(binance_access) do
+    case get_binance("/api/v3/account", [timestamp: :os.system_time(:millisecond)], binance_access) do
+      {:ok, info} -> info
+      all -> all
+    end
+  end
+
+  def get_balance(binance_access, symbol) do
+    user_info(binance_access)
+      |> get_balance_from_account_info(symbol)
+  end
+
+  def get_balance_from_account_info(user_info, symbol) do
+    user_info["balances"]
+      |> Enum.filter(&(&1["asset"] == symbol))
+      |> List.first
+      |> Map.get("free")
+  end
+
   # Order
 
   @doc """
@@ -88,17 +160,17 @@ defmodule Trader.Order.Binance do
   Please read https://www.binance.com/restapipub.html#user-content-account-endpoints to understand all the parameters
   """
   def create_order(
+        binance_auth,
         symbol,
         side,
         type,
         quantity,
-        binance_access,
         price \\ nil,
         time_in_force \\ nil,
         new_client_order_id \\ nil,
         stop_price \\ nil,
         iceberg_quantity \\ nil,
-        receiving_window \\ 1000,
+        receiving_window \\ 5000,
         timestamp \\ nil
       ) do
     timestamp =
@@ -112,36 +184,29 @@ defmodule Trader.Order.Binance do
       end
 
     arguments =
-      %{
+      [
         symbol: symbol,
         side: side,
         type: type,
         quantity: quantity,
         timestamp: timestamp,
         recvWindow: receiving_window
-      }
-      |> Map.merge(
-        unless(
-          is_nil(new_client_order_id),
-          do: %{newClientOrderId: new_client_order_id},
-          else: %{}
-        )
-      )
-      |> Map.merge(unless(is_nil(new_client_order_id), do: %{stopPrice: stop_price}, else: %{}))
-      |> Map.merge(
-        unless(is_nil(new_client_order_id), do: %{icebergQty: iceberg_quantity}, else: %{})
-      )
-      |> Map.merge(unless(is_nil(time_in_force), do: %{timeInForce: time_in_force}, else: %{}))
-      |> Map.merge(unless(is_nil(price), do: %{price: price}, else: %{}))
+      ]
+      |> add(newClientOrderId: new_client_order_id)
+      |> add(stopPrice: stop_price)
+      |> add(icebergQty: iceberg_quantity)
+      |> add(timeInForce: time_in_force)
+      |> add(price: price)
 
-    case post_binance("/api/v3/order/test", arguments, binance_access) do
+    case post_binance("/api/v3/order/test", arguments, binance_auth) do
       {:ok, %{"code" => code, "msg" => msg}} ->
         {:error, {:binance_error, %{code: code, msg: msg}}}
-
-      data ->
-        data
+      data -> data
     end
   end
+
+  def add(args, [{_, nil}]), do: args
+  def add(args, pair), do: args ++ pair
 
   @doc """
   Creates a new **limit** **buy** order
@@ -150,11 +215,12 @@ defmodule Trader.Order.Binance do
 
   Returns `{:ok, %{}}` or `{:error, reason}`
   """
-  def order_limit_buy(symbol, quantity, price, binance_access)
+  def order_limit_buy(binance_auth, symbol, quantity, price)
       when is_binary(symbol)
       when is_number(quantity)
       when is_number(price) do
-    create_order(symbol, "BUY", "LIMIT", quantity, binance_access, price, "GTC")
+    Logger.info "quantity is #{inspect quantity}"
+    create_order(binance_auth, symbol, "BUY", "LIMIT", quantity, price, "GTC")
   end
 
   @doc """
@@ -164,11 +230,11 @@ defmodule Trader.Order.Binance do
 
   Returns `{:ok, %{}}` or `{:error, reason}`
   """
-  def order_limit_sell(symbol, quantity, price, binance_access)
+  def order_limit_sell(binance_auth, symbol, quantity, price)
       when is_binary(symbol)
       when is_number(quantity)
       when is_number(price) do
-    create_order(symbol, "SELL", "LIMIT", quantity, binance_access, price, "GTC")
+    create_order(binance_auth, symbol, "SELL", "LIMIT", quantity, price, "GTC")
   end
 
   @doc """
@@ -178,10 +244,10 @@ defmodule Trader.Order.Binance do
 
   Returns `{:ok, %{}}` or `{:error, reason}`
   """
-  def order_market_buy(symbol, quantity, binance_access)
+  def order_market_buy(binance_auth, symbol, quantity)
       when is_binary(symbol)
       when is_number(quantity) do
-    create_order(symbol, "BUY", "MARKET", quantity, binance_access)
+    create_order(binance_auth, symbol, "BUY", "MARKET", quantity)
   end
 
   @doc """
@@ -191,10 +257,10 @@ defmodule Trader.Order.Binance do
 
   Returns `{:ok, %{}}` or `{:error, reason}`
   """
-  def order_market_sell(symbol, quantity, binance_access)
+  def order_market_sell(binance_auth, symbol, quantity)
       when is_binary(symbol)
       when is_number(quantity) do
-    create_order(symbol, "SELL", "MARKET", quantity, binance_access)
+    create_order(binance_auth, symbol, "SELL", "MARKET", quantity)
   end
 
 end
