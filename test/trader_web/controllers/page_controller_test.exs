@@ -3,6 +3,6 @@ defmodule TraderWeb.PageControllerTest do
 
   test "GET /", %{conn: conn} do
     conn = get conn, "/"
-    assert html_response(conn, 200) =~ "Welcome to Phoenix!"
+    assert html_response(conn, 200) =~ "The risk averse way<br />to day-trade shitcoins on binance."
   end
 end

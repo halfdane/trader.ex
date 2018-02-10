@@ -23,6 +23,17 @@ defmodule TraderWeb.ConnCase do
 
       # The default endpoint for testing
       @endpoint TraderWeb.Endpoint
+
+      def guardian_login(%Plug.Conn{} = conn, user), do: guardian_login(conn, user, :token, [])
+      def guardian_login(%Plug.Conn{} = conn, user, token), do: guardian_login(conn, user, token, [])
+      def guardian_login(%Plug.Conn{} = conn, user, token, opts) do
+        conn
+          |> bypass_through(TraderWeb.Router, [:browser])
+          |> get("/")
+          |> Trader.Auth.Guardian.Plug.sign_in(user)
+          |> send_resp(200, "Flush the session yo")
+          |> recycle()
+      end
     end
   end
 

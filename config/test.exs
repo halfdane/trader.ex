@@ -20,3 +20,9 @@ config :trader, Trader.Repo,
 
 config :trader, Trader.CoinTicker,
   max_symbol_count: 1
+
+config :trader, Trader.Auth.Guardian,
+    issuer: "Trader",
+    secret_key: "some secret"
+
+config :comeonin, bcrypt_log_rounds: 1

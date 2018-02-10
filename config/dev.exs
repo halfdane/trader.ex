@@ -63,3 +63,6 @@ config :trader, Trader.Auth.Guardian,
 
 config :trader, Trader.CoinTicker,
   max_symbol_count: 2
+
+
+config :comeonin, bcrypt_log_rounds: 1

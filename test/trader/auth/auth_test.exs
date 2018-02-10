@@ -31,8 +31,8 @@ defmodule Trader.AuthTest do
 
     test "create_user/1 with valid data creates a user" do
       assert {:ok, %User{} = user} = Auth.create_user(@valid_attrs)
-      assert user.password == "some password"
       assert user.username == "some username"
+      assert Comeonin.Bcrypt.checkpw(@valid_attrs.password, user.password)
     end
 
     test "create_user/1 with invalid data returns error changeset" do
@@ -43,7 +43,7 @@ defmodule Trader.AuthTest do
       user = user_fixture()
       assert {:ok, user} = Auth.update_user(user, @update_attrs)
       assert %User{} = user
-      assert user.password == "some updated password"
+      assert Comeonin.Bcrypt.checkpw(@update_attrs.password, user.password)
       assert user.username == "some updated username"
     end
 

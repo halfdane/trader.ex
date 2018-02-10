@@ -37,6 +37,8 @@ config :trader, Trader.Auth.Guardian,
 config :trader, Trader.CoinTicker,
   max_symbol_count: -1
 
+config :comeonin, bcrypt_log_rounds: 14
+
 # ## SSL Support
 #
 # To get SSL working, you will need to add the `https` key
