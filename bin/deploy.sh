@@ -2,7 +2,6 @@
 
 export APP_NAME=suspicious-petty-phoenix
 unset SSL_CERT_FILE
-echo "hey"
 
 cd assets
 npm install
