@@ -5,12 +5,21 @@ defmodule Trader.Binance.ExchangeInfoTest do
   alias Trader.Testdata
 
   setup do
-    {:ok,server_pid} = ExchangeInfo.start_link(Testdata.binance_exchange_info)
-    {:ok,server: server_pid}
+    {:ok, _} = ExchangeInfo.start_link(Testdata.binance_exchange_info)
+    :ok
   end
 
-  test "get symbol info", %{server: pid} do
-    assert :ok == ExchangeInfo.get_symbol("ETHBTC")
+  test "get symbol info" do
+    {:ok, info} = ExchangeInfo.get_symbol("ETHBTC")
+    assert info.symbol == "ETHBTC"
+    assert info.status == "TRADING"
+    assert info.baseAsset == "ETH"
+  end
+
+  test "get all symbol infos" do
+    {:ok, symbols} = ExchangeInfo.get_symbols()
+    symbol_names = symbols |> Enum.map(&(&1.symbol))
+    assert symbol_names == ["ETHBTC", "LTCBTC"]
   end
 
 end

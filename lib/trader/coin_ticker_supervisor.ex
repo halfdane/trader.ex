@@ -10,14 +10,18 @@ defmodule Trader.CoinTicker.Supervisor do
   end
 
   def start_ticker(symbol) do
-    Supervisor.start_child(:coin_ticker_supervisor, [symbol])
+    Task.start_link(fn() ->
+      Supervisor.start_child(:coin_ticker_supervisor, [symbol])
+   end)
   end
 end
 
 defmodule Trader.CoinTicker.Supervisor.Starter do
   require Logger
+  alias Trader.Binance.ExchangeInfo
 
   def start_tickers_of_binance do
+    Logger.info "Getting exchange information from binance"
     case HTTPoison.get "https://api.binance.com/api/v1/exchangeInfo" do
       {:ok, %HTTPoison.Response{status_code: 200, body: body}} -> start_children(body)
       {_, poison_info} -> Logger.info "Something went wrong: #{inspect poison_info}"
@@ -26,10 +30,15 @@ defmodule Trader.CoinTicker.Supervisor.Starter do
 
   defp start_children(body) do
     body
-      |> Poison.decode!
-      |> extract_symbols
+      |> ExchangeInfo.start_link
+
+    Logger.info "Starting coin tickers"
+    {:ok, symbols} = ExchangeInfo.get_symbols()
+    symbols
+      |> Enum.map(&(&1.symbol))
       |> restrict_tickers
       |> Enum.map(&Trader.CoinTicker.Supervisor.start_ticker/1)
+    Logger.info "DONE Starting coin tickers"
   end
 
   defp restrict_tickers(all_symbols) do
@@ -38,11 +47,6 @@ defmodule Trader.CoinTicker.Supervisor.Starter do
       x when x > 0 -> Enum.slice(all_symbols, 0, x)
       _            -> all_symbols
     end
-  end
-
-  defp extract_symbols(exchange_info) do
-    exchange_info["symbols"]
-      |> Enum.map(&(%{symbol: &1["symbol"], base: &1["baseAsset"], quote: &1["quoteAsset"]}))
   end
 
 end

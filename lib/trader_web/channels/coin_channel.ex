@@ -8,7 +8,7 @@ defmodule TraderWeb.CoinChannel do
   end
 
   def update_trade(trade, symbol) do
-    room = "coin:#{symbol.symbol}"
+    room = "coin:#{symbol}"
     TraderWeb.Endpoint.broadcast(room, "new_msg", trade)
   end
 

@@ -1,4 +1,5 @@
 defmodule Trader.Binance.ExchangeInfoHelper do
+
   def parse_exchange_info(exchange_info_response) do
     Poison.decode!(exchange_info_response)
       |> to_atom_map
