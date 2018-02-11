@@ -14,9 +14,17 @@ defmodule Trader.Binance.ExchangeInfoHelper do
   def get_price_filter(exchange_info, symbol), do: get_filter_info(exchange_info, symbol, "PRICE_FILTER")
   def get_lot_size(exchange_info, symbol), do: get_filter_info(exchange_info, symbol, "LOT_SIZE")
   def get_min_notional(exchange_info, symbol), do: get_filter_info(exchange_info, symbol, "MIN_NOTIONAL")
+  def get_price_filter(symbol_info), do: from_filters(symbol_info, "PRICE_FILTER")
+  def get_lot_size(symbol_info), do: from_filters(symbol_info, "LOT_SIZE")
+  def get_min_notional(symbol_info), do: from_filters(symbol_info, "MIN_NOTIONAL")
   defp get_filter_info(exchange_info, symbol, filter_name) do
     exchange_info
       |> get_symbol_info(symbol)
+      |> from_filters(filter_name)
+  end
+
+  defp from_filters(symbol_info, filter_name) do
+    symbol_info
       |> Map.get(:filters)
       |> Enum.filter(&(&1.filterType == filter_name))
       |> List.first
