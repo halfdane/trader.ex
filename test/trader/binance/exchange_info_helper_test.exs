@@ -27,8 +27,24 @@ defmodule Trader.Binance.ExchangeInfoHelperTest do
     assert ethbtc_filter.maxPrice == 100000.00000000
   end
 
+  test "get price filter from symbol_info", %{exchange_info: info} do
+    symbol_info = ExchangeInfoHelper.get_symbol_info(info, "ETHBTC")
+    ethbtc_filter = ExchangeInfoHelper.get_price_filter(symbol_info)
+    assert ethbtc_filter.tickSize == 0.00000100
+    assert ethbtc_filter.minPrice == 0.00000100
+    assert ethbtc_filter.maxPrice == 100000.00000000
+  end
+
   test "get lot size", %{exchange_info: info} do
     ethbtc_lot = ExchangeInfoHelper.get_lot_size(info, "ETHBTC")
+    assert ethbtc_lot.minQty == 0.00100000
+    assert ethbtc_lot.maxQty == 100000.00000000
+    assert ethbtc_lot.stepSize == 0.00100000
+  end
+
+  test "get lot_size from symbol_info", %{exchange_info: info} do
+    symbol_info = ExchangeInfoHelper.get_symbol_info(info, "ETHBTC")
+    ethbtc_lot = ExchangeInfoHelper.get_lot_size(symbol_info)
     assert ethbtc_lot.minQty == 0.00100000
     assert ethbtc_lot.maxQty == 100000.00000000
     assert ethbtc_lot.stepSize == 0.00100000

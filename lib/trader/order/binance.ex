@@ -219,7 +219,6 @@ defmodule Trader.Order.Binance do
       when is_binary(symbol)
       when is_number(quantity)
       when is_number(price) do
-    Logger.info "quantity is #{inspect quantity}"
     create_order(binance_auth, symbol, "BUY", "LIMIT", quantity, price, "GTC")
   end
 
