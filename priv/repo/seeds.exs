@@ -9,3 +9,18 @@
 #
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
+alias Trader.Repo
+alias Trader.Auth.Role
+alias Trader.Auth.User
+
+role = %Role{}
+  |> Role.changeset(%{name: "Admin Role", admin: true})
+  |> Repo.insert!
+
+admin = %User{}
+  |> User.changeset(%{username: "admin", email: "admin@test.com", password: "test", role_id: role.id})
+  |> Repo.insert!
+
+%Role{}
+  |> Role.changeset(%{name: "User Role", admin: false})
+  |> Repo.insert!

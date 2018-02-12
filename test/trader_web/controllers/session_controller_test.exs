@@ -1,13 +1,20 @@
 defmodule TraderWeb.SessionControllerTest do
   use TraderWeb.ConnCase
   alias Trader.Auth.User
+  alias Trader.TestHelper
 
   require Logger
 
   setup do
-    User.changeset(%User{}, %{username: "test", password: "test"})
-    |> Trader.Repo.insert
-    {:ok, conn: build_conn()}
+    {:ok, user_role}  = TestHelper.create_role(%{name: "user", admin: false})
+    {:ok, admin_role}  = TestHelper.create_role(%{name: "admin", admin: true})
+
+    {:ok, user} = User.changeset(%User{}, %{username: "test", password: "test", role_id: user_role.id})
+      |> Trader.Repo.insert
+    {:ok, admin} = User.changeset(%User{}, %{username: "admin", password: "admin", role_id: admin_role.id})
+      |> Trader.Repo.insert
+
+    {:ok, conn: build_conn(), user: user, admin: admin}
   end
 
   test "shows the login form", %{conn: conn} do
@@ -15,16 +22,25 @@ defmodule TraderWeb.SessionControllerTest do
     assert html_response(conn, 200) =~ "Sign in"
   end
 
-  test "creates a new user session for a valid user", %{conn: conn} do
+  test "creates a new user session for a valid user", %{conn: conn, user: user} do
     conn = post conn, session_path(conn, :create), session: %{username: "test", password: "test"}
-    assert Guardian.Plug.current_resource(conn)
+    assert Guardian.Plug.current_resource(conn).id == user.id
+    refute Guardian.Plug.current_resource(conn, key: :admin)
     assert get_flash(conn, :success) == "Welcome back!"
+    assert redirected_to(conn) == page_path(conn, :index)
+  end
+
+  test "creates a new admin session for a admin user", %{conn: conn, admin: admin} do
+    conn = post conn, session_path(conn, :create), session: %{username: "admin", password: "admin"}
+    assert Guardian.Plug.current_resource(conn).id == admin.id
+    assert Guardian.Plug.current_resource(conn, key: :admin).id ==  admin.id
     assert redirected_to(conn) == page_path(conn, :index)
   end
 
   test "does not create a session with a bad login", %{conn: conn} do
     conn = post conn, session_path(conn, :create), session: %{username: "test", password: "wrong"}
     refute Guardian.Plug.current_resource(conn)
+    refute Guardian.Plug.current_resource(conn, key: :admin)
     assert get_flash(conn, :error) == "Incorrect username or password"
     assert redirected_to(conn) == page_path(conn, :index)
   end
@@ -32,6 +48,7 @@ defmodule TraderWeb.SessionControllerTest do
   test "does not create a session if user does not exist", %{conn: conn} do
     conn = post conn, session_path(conn, :create), session: %{username: "foo", password: "wrong"}
     refute Guardian.Plug.current_resource(conn)
+    refute Guardian.Plug.current_resource(conn, key: :admin)
     assert get_flash(conn, :error) == "Incorrect username or password"
     assert redirected_to(conn) == page_path(conn, :index)
   end
@@ -40,5 +57,15 @@ defmodule TraderWeb.SessionControllerTest do
     conn = post conn, session_path(conn, :create), session: %{username: "test", password: "test"}
     conn = delete conn, session_path(conn, :delete, :ignore)
     refute Guardian.Plug.current_resource(conn)
+    refute Guardian.Plug.current_resource(conn, key: :admin)
+  end
+
+  test "removes admin session if it is closed", %{conn: conn} do
+    conn = post conn, session_path(conn, :create), session: %{username: "admin", password: "admin"}
+    assert Guardian.Plug.current_resource(conn).id
+    assert Guardian.Plug.current_resource(conn, key: :admin).id
+    conn = delete conn, session_path(conn, :delete, :ignore)
+    refute Guardian.Plug.current_resource(conn)
+    refute Guardian.Plug.current_resource(conn, key: :admin)
   end
 end

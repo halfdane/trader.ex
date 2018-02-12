@@ -11,6 +11,12 @@ defmodule TraderWeb.Router do
     plug Guardian.Plug.EnsureAuthenticated
   end
 
+  pipeline :ensure_admin do
+    plug Guardian.Plug.VerifySession, key: :admin
+    plug Guardian.Plug.LoadResource, key: :admin
+  end
+
+
   pipeline :browser do
     plug :accepts, ["html"]
     plug :fetch_session
@@ -42,12 +48,19 @@ defmodule TraderWeb.Router do
   scope "/", TraderWeb do
     pipe_through [:browser, :auth, :ensure_auth]
 
+    get "/user/show", UserController, :show
     get "/user/edit", UserController, :edit
-    get "/user/", UserController, :show
     patch "/user/", UserController, :update
     put "/user/", UserController, :update
     delete "/user/", UserController, :delete
 
     post "/orders/", OrdersController, :create
+  end
+
+  # admin in scope
+  scope "/admin", TraderWeb do
+    pipe_through [:browser, :auth, :ensure_auth, :ensure_admin]
+
+    resources "/users/", AdminUserController
   end
 end

@@ -1,0 +1,22 @@
+<h2>Show User</h2>
+
+<ul>
+
+  <li>
+    <strong>Username:</strong>
+    <%= @user.username %>
+  </li>
+
+  <li>
+    <strong>Binance api key:</strong>
+    <%= @user.binance_api_key %>
+  </li>
+
+  <li>
+    <strong>Binance api secret:</strong>
+    <%= @user.binance_api_secret %>
+  </li>
+</ul>
+
+<span><%= link "Edit", to: admin_user_path(@conn, :edit, @user) %></span>
+<span><%= link "Back", to: page_path(@conn, :index) %></span>

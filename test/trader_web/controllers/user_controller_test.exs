@@ -2,18 +2,13 @@ defmodule TraderWeb.UserControllerTest do
   use TraderWeb.ConnCase
 
   alias Trader.Auth
+  alias Trader.TestHelper
 
   @create_attrs %{password: "some password", username: "some username"}
   @update_attrs %{password: "some updated password", username: "some updated username"}
   @invalid_attrs %{password: nil, username: nil}
 
-  def fixture(:user) do
-    {:ok, user} = Auth.create_user(@create_attrs)
-    user
-  end
-
   describe "index" do
-    @tag :skip # no admin role yet
     test "lists all users", %{conn: conn} do
       conn = get conn, user_path(conn, :index)
       assert html_response(conn, 200) =~ "Listing Users"
@@ -28,8 +23,9 @@ defmodule TraderWeb.UserControllerTest do
   end
 
   describe "create user" do
-    test "logs in and redirects to show when data is valid", %{conn: conn} do
-      conn = post conn, user_path(conn, :create), user: @create_attrs
+    setup [:roles]
+    test "logs in and redirects to show when data is valid", %{conn: conn, user_role: user_role} do
+      conn = post conn, user_path(conn, :create), user: with_role(@create_attrs, user_role)
 
       assert redirected_to(conn) == user_path(conn, :show)
       assert Guardian.Plug.current_resource(conn)
@@ -37,8 +33,8 @@ defmodule TraderWeb.UserControllerTest do
       assert html_response(conn, 200) =~ "Show User"
     end
 
-    test "renders errors when data is invalid", %{conn: conn} do
-      conn = post conn, user_path(conn, :create), user: @invalid_attrs
+    test "renders errors when data is invalid", %{conn: conn, user_role: user_role} do
+      conn = post conn, user_path(conn, :create), user: with_role(@invalid_attrs, user_role)
       assert html_response(conn, 200) =~ "New User"
       [username, password] = conn.assigns.changeset.errors
       assert username == {:username, {"can't be blank", [validation: :required]}}
@@ -47,7 +43,7 @@ defmodule TraderWeb.UserControllerTest do
   end
 
   describe "edit user" do
-    setup [:authenticated]
+    setup [:roles, :authenticated]
     test "renders form for editing chosen user", %{conn: conn} do
       conn = get conn, user_path(conn, :edit)
       assert html_response(conn, 200) =~ "Edit User"
@@ -55,7 +51,7 @@ defmodule TraderWeb.UserControllerTest do
   end
 
   describe "update user" do
-    setup [:authenticated]
+    setup [:roles, :authenticated]
     test "redirects when data is valid", %{conn: conn, user: user} do
       conn = put conn, user_path(conn, :update), user: @update_attrs
       assert redirected_to(conn) == user_path(conn, :show)
@@ -63,7 +59,7 @@ defmodule TraderWeb.UserControllerTest do
       assert ! (html_response(conn, 200) =~ user.password)
     end
 
-    setup [:authenticated]
+    setup [:roles, :authenticated]
     test "renders errors when data is invalid", %{conn: conn} do
       conn = put conn, user_path(conn, :update), user: @invalid_attrs
       assert html_response(conn, 200) =~ "Edit User"
@@ -74,7 +70,7 @@ defmodule TraderWeb.UserControllerTest do
   end
 
   describe "delete user" do
-    setup [:authenticated]
+    setup [:roles, :authenticated]
     test "deletes chosen user and logs out", %{conn: conn} do
       conn = delete conn, user_path(conn, :delete)
       assert redirected_to(conn) == page_path(conn, :index)
@@ -82,8 +78,18 @@ defmodule TraderWeb.UserControllerTest do
     end
   end
 
-  defp authenticated(%{conn: conn}) do
-    user = fixture(:user)
+  defp with_role(attrs, role) do
+    Map.put(attrs, :role_id, role.id)
+  end
+
+  defp roles(_) do
+    {:ok, user_role}  = TestHelper.create_role(%{name: "user", admin: false})
+    {:ok, admin_role} = TestHelper.create_role(%{name: "admin", admin: true})
+    {:ok, user_role: user_role, admin_role: admin_role}
+  end
+
+  defp authenticated(%{conn: conn, user_role: user_role}) do
+    {:ok, user} = Auth.create_user(with_role(@create_attrs, user_role))
     conn = guardian_login(conn, user)
     {:ok, user: user, conn: conn}
   end
