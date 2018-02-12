@@ -4,16 +4,16 @@ defmodule Trader.Binance.ExchangeInfo do
   require Logger
 
   # Client
-  def start_link(exchange_info_string \\ "") do
-    GenServer.start_link(__MODULE__, exchange_info_string, name: __MODULE__)
+  def start_link(exchange_info_string, name \\ __MODULE__) do
+    GenServer.start_link(__MODULE__, exchange_info_string, name: name)
   end
 
-  def get_symbol(symbol) do
-    GenServer.call(__MODULE__, {:get_symbol, symbol})
+  def get_symbol(symbol, name \\ __MODULE__) do
+    GenServer.call(name, {:get_symbol, symbol})
   end
 
-  def get_symbols() do
-    GenServer.call(__MODULE__, :get_symbols)
+  def get_symbols(name \\ __MODULE__) do
+    GenServer.call(name, :get_symbols)
   end
 
   # Server
