@@ -1,3 +1,3 @@
-defmodule TraderWeb.UserView do
+defmodule TraderWeb.AdminUserView do
   use TraderWeb, :view
 end

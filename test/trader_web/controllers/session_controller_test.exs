@@ -1,6 +1,5 @@
 defmodule TraderWeb.SessionControllerTest do
   use TraderWeb.ConnCase
-  alias Trader.Auth.User
   alias Trader.TestHelper
 
   require Logger
@@ -9,10 +8,8 @@ defmodule TraderWeb.SessionControllerTest do
     {:ok, user_role}  = TestHelper.create_role(%{name: "user", admin: false})
     {:ok, admin_role}  = TestHelper.create_role(%{name: "admin", admin: true})
 
-    {:ok, user} = User.changeset(%User{}, %{username: "test", password: "test", role_id: user_role.id})
-      |> Trader.Repo.insert
-    {:ok, admin} = User.changeset(%User{}, %{username: "admin", password: "admin", role_id: admin_role.id})
-      |> Trader.Repo.insert
+    {:ok, user} = TestHelper.create_user(user_role, %{username: "test", password: "test"})
+    {:ok, admin} = TestHelper.create_user(admin_role, %{username: "admin", password: "admin"})
 
     {:ok, conn: build_conn(), user: user, admin: admin}
   end

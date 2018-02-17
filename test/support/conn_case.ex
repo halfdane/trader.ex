@@ -26,13 +26,9 @@ defmodule TraderWeb.ConnCase do
 
       def guardian_login(%Plug.Conn{} = conn, user), do: guardian_login(conn, user, :token, [])
       def guardian_login(%Plug.Conn{} = conn, user, token), do: guardian_login(conn, user, token, [])
-      def guardian_login(%Plug.Conn{} = conn, user, token, opts) do
+      def guardian_login(%Plug.Conn{} = conn, %Trader.Auth.User{username: username, password: password}, token, opts) do
         conn
-          |> bypass_through(TraderWeb.Router, [:browser])
-          |> get("/")
-          |> Trader.Auth.Guardian.Plug.sign_in(user)
-          |> send_resp(200, "Flush the session yo")
-          |> recycle()
+          |> post(session_path(conn, :create), session: %{username: username, password: password})
       end
     end
   end

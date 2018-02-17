@@ -8,9 +8,12 @@ defmodule Trader.TestHelper do
     |> Repo.insert
   end
   def create_user(role, %{username: username, password: password}) do
-    role
-    |> build_assoc(:users)
-    |> User.changeset(%{username: username, password: password})
-    |> Repo.insert
+    {:ok, user} = role
+      |> build_assoc(:users)
+      |> User.changeset(%{username: username, password: password})
+      |> Repo.insert
+
+    # provide plaintest password in testsmix 
+    {:ok, %{user |password: password}}
   end
 end
