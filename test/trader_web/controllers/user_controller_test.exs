@@ -7,12 +7,6 @@ defmodule TraderWeb.UserControllerTest do
   @update_attrs %{password: "some updated password", username: "some updated username"}
   @invalid_attrs %{password: nil, username: nil}
 
-  describe "index" do
-    test "can't list all users", %{conn: conn} do
-      conn = get conn, user_path(conn, :index)
-      assert html_response(conn, 404)
-    end
-  end
   
   describe "new user" do
     test "renders form", %{conn: conn} do

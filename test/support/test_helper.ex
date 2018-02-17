@@ -13,7 +13,7 @@ defmodule Trader.TestHelper do
       |> User.changeset(%{username: username, password: password})
       |> Repo.insert
 
-    # provide plaintest password in testsmix 
+    # provide plaintest password in tests
     {:ok, %{user |password: password}}
   end
 end
