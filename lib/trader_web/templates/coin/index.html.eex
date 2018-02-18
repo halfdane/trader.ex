@@ -1,7 +1,13 @@
 <div class="jumbotron">
   <h2>Trading <%= @symbol %>!</h2>
 </div>
-<div data-symbol="<%= @symbol %>" id="order"></div>
+<div data-symbol="<%= @symbol %>" id="candle"></div>
+Datetime: <div id="candle_date_time"></div>
+High: <div id="candle_high_price"></div>
+Low: <div id="candle_low_price"></div>
+Open: <div id="candle_open_price"></div>
+Close: <div id="candle_close_price"></div>
+
 <%= form_for @conn, orders_path(@conn, :create),
                                           [as: :order], fn f -> %>
   <div class="form-group">
@@ -14,18 +20,6 @@
     <%= label f, :buy_price, class: "control-label" %>
     <%= text_input f, :buy_price, class: "form-control" %>
     <%= error_tag f, :buy_price %>
-  </div>
-
-  <div class="form-group">
-    <%= label f, :lower_limit, class: "control-label" %>
-    <%= text_input f, :lower_limit, class: "form-control" %>
-    <%= error_tag f, :lower_limit %>
-  </div>
-
-  <div class="form-group">
-    <%= label f, :upper_limit, class: "control-label" %>
-    <%= text_input f, :upper_limit, class: "form-control" %>
-    <%= error_tag f, :upper_limit %>
   </div>
 
   <div class="form-group">

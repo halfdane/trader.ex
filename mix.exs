@@ -49,7 +49,8 @@ defmodule Trader.Mixfile do
       {:comeonin, "~> 4.0"},
       {:bcrypt_elixir, "~> 0.12"},
       {:distillery, "~> 1.0.0"},
-      {:mix_test_watch, "~> 0.5", only: :dev, runtime: false}
+      {:mix_test_watch, "~> 0.5", only: :dev, runtime: false},
+      {:gen_stage, "~> 0.5"}
     ]
   end
 

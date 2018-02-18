@@ -50,26 +50,30 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 //
 // Finally, pass the token on connect as below. Or remove it
 // from connect if you don't care about authentication.
-let orderContainer = document.querySelector("#order")
+let candleContainer = document.querySelector("#candle")
+let candle_date_time = document.querySelector("#candle_date_time")
+let candle_high_price = document.querySelector("#candle_high_price")
+let candle_low_price = document.querySelector("#candle_low_price")
+let candle_open_price = document.querySelector("#candle_open_price")
+let candle_close_price = document.querySelector("#candle_close_price")
+
 let order_buy_price = document.querySelector("#order_buy_price")
-let order_lower_limit = document.querySelector("#order_lower_limit")
-let order_upper_limit = document.querySelector("#order_upper_limit")
 socket.connect()
 
 // Now that you are connected, you can join channels with a topic:
-let symbol = orderContainer.dataset.symbol;
-let channel = socket.channel(`coin:${symbol}`, {})
+let symbol = candleContainer.dataset.symbol;
+let channel = socket.channel(`candle:${symbol}`, {})
 
-channel.on("new_msg", payload => {
-  const date = new Date(payload.trade_time)
+channel.on("candle_update", candle => {
+  const date = new Date(candle.event_time)
 
-  const min = p => p - (p*0.01)
-  const max = p => p + (p*0.03)
+  candle_date_time.innerText = `${date.toLocaleDateString('de-DE')} ${date.toLocaleTimeString('de-DE')}`
+  candle_high_price.innerText = candle.high_price
+  candle_low_price.innerText = candle.low_price
+  candle_open_price.innerText = candle.open_price
+  candle_close_price.innerText = candle.close_price
 
-  orderContainer.innerText = `${date.toLocaleDateString('de-DE')} ${date.toLocaleTimeString('de-DE')}`
-  order_buy_price.value = payload.price
-  order_lower_limit.value = min(payload.price)
-  order_upper_limit.value = max(payload.price)
+  order_buy_price.value = candle.low_price
 })
 
 channel.join()

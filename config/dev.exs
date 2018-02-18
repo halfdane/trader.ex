@@ -61,7 +61,7 @@ config :trader, Trader.Auth.Guardian,
   issuer: "Trader", # Name of your app/company/product
   secret_key: "LEqB8QT2M9KfGlkuKtyZHcjloy2W+Zts5d1FRFdBvM5EkIPykaj+7YJLzU30f4DU"
 
-config :trader, Trader.CoinTicker,
+config :trader, Trader.CandleTicker,
   max_symbol_count: 2
 
 

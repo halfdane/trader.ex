@@ -34,7 +34,7 @@ config :trader, Trader.Auth.Guardian,
   issuer: "Trader", # Name of your app/company/product
   secret_key: "${JWT_SECRET}"
 
-config :trader, Trader.CoinTicker,
+config :trader, Trader.CandleTicker,
   max_symbol_count: -1
 
 config :comeonin, bcrypt_log_rounds: 14

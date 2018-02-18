@@ -2,7 +2,7 @@ defmodule TraderWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  channel "coin:*", TraderWeb.CoinChannel
+  channel "candle:*", TraderWeb.CandleChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket,

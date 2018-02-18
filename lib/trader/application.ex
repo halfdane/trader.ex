@@ -12,10 +12,11 @@ defmodule Trader.Application do
       supervisor(Trader.Repo, []),
       # Start the endpoint when the application starts
       supervisor(TraderWeb.Endpoint, []),
-      supervisor(Trader.CoinTicker.Supervisor, []),
+      supervisor(Trader.CandleTicker.Supervisor, []),
       supervisor(Task.Supervisor, []),
+      supervisor(Phoenix.PubSub.PG2, [:candle_notifications, []]),
 
-      worker(Task, [fn -> Trader.CoinTicker.Supervisor.Starter.start_tickers_of_binance end], restart: :temporary)
+      worker(Task, [fn -> Trader.CandleTicker.Supervisor.Starter.start_tickers_of_binance end], restart: :temporary)
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
