@@ -10,9 +10,7 @@ defmodule Trader.CandleTicker.Supervisor do
   end
 
   def start_ticker(symbol) do
-    Task.start_link(fn() ->
-      Supervisor.start_child(:coin_ticker_supervisor, [symbol])
-   end)
+    Supervisor.start_child(:coin_ticker_supervisor, [symbol])
   end
 end
 
@@ -37,6 +35,12 @@ defmodule Trader.CandleTicker.Supervisor.Starter do
       |> Enum.map(&(&1.symbol))
       |> restrict_tickers
       |> Enum.map(&Trader.CandleTicker.Supervisor.start_ticker/1)
+  end
+
+  def start_ticker(symbol) do
+    Task.start_link(fn() ->
+      Trader.CandleTicker.Supervisor.start_ticker(symbol)
+   end)
   end
 
   defp restrict_tickers(all_symbols) do

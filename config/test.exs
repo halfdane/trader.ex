@@ -25,4 +25,5 @@ config :trader, Trader.Auth.Guardian,
     issuer: "Trader",
     secret_key: "some secret"
 
-config :comeonin, bcrypt_log_rounds: 1
+config :bcrypt_elixir, log_rounds: 4
+

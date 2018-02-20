@@ -18,7 +18,7 @@ defmodule Trader.CandleTicker do
     candle = Poison.decode!(msg)
       |> to_candle
       
-    PubSub.broadcast(:candle_notifications, symbol, {:candle, candle})
+    PubSub.broadcast(:notifications, "#{symbol}:candles", {:candle, candle})
       
     {:ok, state}
   end

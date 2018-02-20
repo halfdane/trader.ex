@@ -4,7 +4,7 @@ defmodule TraderWeb.CandleChannel do
   require Logger
 
   def join("candle:" <> symbol, _params, socket) do
-    PubSub.subscribe(:candle_notifications, symbol)
+    PubSub.subscribe(:notifications, "#{symbol}:candles")
     {:ok, socket}
   end
 

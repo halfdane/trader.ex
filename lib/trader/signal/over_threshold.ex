@@ -8,18 +8,16 @@ defmodule Trader.Signal.OverThreshold do
     end
 
     def init(state) do
-        PubSub.subscribe(:candle_notifications, state.symbol)
+        PubSub.subscribe(:notifications, "#{state.symbol}:candles")
         {:ok, state}
     end
 
     def handle_info({:candle, candle}, state) do
-        Logger.info "new info"
         if candle.high_price > state.threshold do
-            Logger.info "#{candle.high_price} > #{state.threshold} That's it! Sending the signal"
+            PubSub.broadcast(:notifications, "signals", state)
             {:stop, :normal, state}
         else
             {:noreply, state}
         end
     end
-    
 end
