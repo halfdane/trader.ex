@@ -1,11 +1,11 @@
 defmodule TraderWeb.CandleChannel do
   use Phoenix.Channel
-  alias Phoenix.PubSub
+  alias Trader.Notify
   require Logger
 
   def join("candle:" <> symbol, _params, socket) do
-    PubSub.subscribe(:notifications, "#{symbol}:candles")
-    #PubSub.subscribe(:notifications, "#{symbol}:agg_trades")
+    Notify.sub_candles(symbol)
+    Notify.sub_agg_trades(symbol)
     {:ok, socket}
   end
 

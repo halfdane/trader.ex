@@ -1,7 +1,7 @@
 defmodule Trader.Binance.AggTradeTicker do
   use WebSockex
   require Logger
-  alias Phoenix.PubSub
+  alias Trader.Notify
 
   def start_link(symbol) do
     url = "wss://stream2.binance.com:9443/ws/#{String.downcase(symbol)}@aggTrade"
@@ -18,7 +18,7 @@ defmodule Trader.Binance.AggTradeTicker do
       Poison.decode!(msg)
       |> to_agg_trade
 
-    PubSub.broadcast(:notifications, "#{symbol}:agg_trades", {:agg_trade, agg_trade})
+    Notify.agg_trade(agg_trade)
 
     {:ok, state}
   end

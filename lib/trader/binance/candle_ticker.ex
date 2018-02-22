@@ -1,7 +1,7 @@
 defmodule Trader.Binance.CandleTicker do
   use WebSockex
   require Logger
-  alias Phoenix.PubSub
+  alias Trader.Notify
 
   def start_link(symbol) do
     url = "wss://stream2.binance.com:9443/ws/#{String.downcase(symbol)}@kline_1m"
@@ -18,7 +18,7 @@ defmodule Trader.Binance.CandleTicker do
       Poison.decode!(msg)
       |> to_candle
 
-    PubSub.broadcast(:notifications, "#{symbol}:candles", {:candle, candle})
+    Notify.candle(candle)
 
     {:ok, state}
   end
