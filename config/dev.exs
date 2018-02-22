@@ -68,8 +68,6 @@ config :trader, Trader.Auth.Guardian,
   issuer: "Trader",
   secret_key: "LEqB8QT2M9KfGlkuKtyZHcjloy2W+Zts5d1FRFdBvM5EkIPykaj+7YJLzU30f4DU"
 
-config :trader, Trader.CandleTicker, max_symbol_count: 2
-
 config :trader, Trader.SupportedSymbols, symbols: ["ETHBTC", "LTCBTC"]
 
 config :comeonin, bcrypt_log_rounds: 1

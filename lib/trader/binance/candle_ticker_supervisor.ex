@@ -1,4 +1,4 @@
-defmodule Trader.CandleTicker.Supervisor do
+defmodule Trader.Binance.CandleTicker.Supervisor do
   use Supervisor
 
   def start_link() do
@@ -6,7 +6,7 @@ defmodule Trader.CandleTicker.Supervisor do
   end
 
   def init(_) do
-    children = [worker(Trader.CandleTicker, [])]
+    children = [worker(Trader.Binance.CandleTicker, [])]
     supervise(children, strategy: :simple_one_for_one)
   end
 
@@ -15,7 +15,7 @@ defmodule Trader.CandleTicker.Supervisor do
   end
 end
 
-defmodule Trader.CandleTicker.Supervisor.Starter do
+defmodule Trader.Binance.CandleTicker.Supervisor.Starter do
   require Logger
   alias Trader.Binance.ExchangeInfo
 
@@ -36,12 +36,12 @@ defmodule Trader.CandleTicker.Supervisor.Starter do
 
     symbols
     |> Enum.map(& &1.symbol)
-    |> Enum.map(&Trader.CandleTicker.Supervisor.start_ticker/1)
+    |> Enum.map(&Trader.Binance.CandleTicker.Supervisor.start_ticker/1)
   end
 
   def start_ticker(symbol) do
     Task.start_link(fn ->
-      Trader.CandleTicker.Supervisor.start_ticker(symbol)
+      Trader.Binance.CandleTicker.Supervisor.start_ticker(symbol)
     end)
   end
 end

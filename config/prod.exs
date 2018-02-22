@@ -35,8 +35,6 @@ config :trader, Trader.Auth.Guardian,
   issuer: "Trader",
   secret_key: "${JWT_SECRET}"
 
-config :trader, Trader.CandleTicker, max_symbol_count: -1
-
 config :trader, Trader.SupportedSymbols, symbols: ["ETHBTC"]
 
 config :comeonin, bcrypt_log_rounds: 14

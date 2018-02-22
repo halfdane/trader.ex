@@ -18,8 +18,6 @@ config :trader, Trader.Repo,
   hostname: "localhost",
   pool: Ecto.Adapters.SQL.Sandbox
 
-config :trader, Trader.CandleTicker, max_symbol_count: 1
-
 config :trader, Trader.SupportedSymbols, symbols: ["ETHBTC", "LTCBTC"]
 
 config :trader, Trader.Auth.Guardian,

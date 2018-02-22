@@ -1,4 +1,4 @@
-defmodule Trader.CandleTicker do
+defmodule Trader.Binance.CandleTicker do
   use WebSockex
   require Logger
   alias Phoenix.PubSub
