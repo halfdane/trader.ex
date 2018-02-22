@@ -24,10 +24,17 @@ defmodule Trader.Binance.TickerStarter do
 
   def start_ticker(symbol) do
     Task.start_link(fn ->
-      DynamicSupervisor.start_child(Trader.Binance.TickerSupervisor, {Trader.Binance.CandleTicker, symbol})
+      DynamicSupervisor.start_child(
+        Trader.Binance.TickerSupervisor,
+        {Trader.Binance.CandleTicker, symbol}
+      )
     end)
+
     Task.start_link(fn ->
-      DynamicSupervisor.start_child(Trader.Binance.TickerSupervisor, {Trader.Binance.AggTradeTicker, symbol})
+      DynamicSupervisor.start_child(
+        Trader.Binance.TickerSupervisor,
+        {Trader.Binance.AggTradeTicker, symbol}
+      )
     end)
   end
 end
