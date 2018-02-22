@@ -12,12 +12,12 @@ defmodule Trader.Application do
       supervisor(Trader.Repo, []),
       # Start the endpoint when the application starts
       supervisor(TraderWeb.Endpoint, []),
-      supervisor(Trader.Binance.CandleTicker.Supervisor, []),
       supervisor(Task.Supervisor, []),
       supervisor(Phoenix.PubSub.PG2, [:notifications, []]),
+      {DynamicSupervisor, name: Trader.Binance.TickerSupervisor, strategy: :one_for_one},
       worker(
         Task,
-        [fn -> Trader.Binance.CandleTicker.Supervisor.Starter.start_tickers_of_binance() end],
+        [fn -> Trader.Binance.TickerStarter.start_tickers_of_binance() end],
         restart: :temporary
       )
     ]

@@ -4,14 +4,13 @@ defmodule Trader.Binance.CandleTicker do
   alias Phoenix.PubSub
 
   def start_link(symbol) do
-    Logger.info("Starting candle ticker for #{symbol}")
     url = "wss://stream2.binance.com:9443/ws/#{String.downcase(symbol)}@kline_1m"
-    Logger.debug("Ticker streams from #{url}")
     WebSockex.start_link(url, __MODULE__, %{symbol: symbol}, name: via_tuple(symbol))
+    Logger.info("Started candle ticker for #{symbol} at #{url}")
   end
 
   defp via_tuple(symbol) do
-    {:via, :gproc, {:n, :l, {:symbol, symbol}}}
+    {:via, :gproc, {:n, :l, {:symbol, symbol, __MODULE__}}}
   end
 
   def handle_frame({_type, msg}, %{symbol: symbol} = state) do
@@ -25,7 +24,7 @@ defmodule Trader.Binance.CandleTicker do
   end
 
   defp to_candle(%{
-         # ("kline")
+         # "kline"
          "e" => event_type,
          "E" => event_time,
          "s" => _symbol1,
