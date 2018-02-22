@@ -13,12 +13,11 @@ defmodule Trader.Binance.AggTradeTicker do
     {:via, :gproc, {:n, :l, {:symbol, symbol, __MODULE__}}}
   end
 
-  def handle_frame({_type, msg}, %{symbol: symbol} = state) do
+  def handle_frame({_type, msg}, _state) do
     agg_trade =
       Poison.decode!(msg)
       |> to_agg_trade
-
-    Notify.agg_trade(agg_trade)
+      |> Notify.agg_trade
 
     {:ok, state}
   end
