@@ -13,28 +13,27 @@ defmodule Trader.Binance.AggTradeTicker do
     {:via, :gproc, {:n, :l, {:symbol, symbol, __MODULE__}}}
   end
 
-  def handle_frame({_type, msg}, _state) do
-    agg_trade =
-      Poison.decode!(msg)
-      |> to_agg_trade
-      |> Notify.agg_trade
+  def handle_frame({_type, msg}, state) do
+    Poison.decode!(msg)
+    |> to_agg_trade
+    |> Notify.agg_trade()
 
     {:ok, state}
   end
 
   defp to_agg_trade(%{
-        # aggTrade
-        "e" => event_type,
-        "E" => event_time,
-        "s" => symbol,
-        "a" => _aggregate_trade_ID,
-        "p" => price,
-        "q" => quantity,
-        "f" => _first_trade_ID,
-        "l" => _last_trade_ID,
-        "T" => trade_time,
-        "m" => is_the_buyer_the_market_maker,
-        "M" => _ignore
+         # aggTrade
+         "e" => event_type,
+         "E" => event_time,
+         "s" => symbol,
+         "a" => _aggregate_trade_ID,
+         "p" => price,
+         "q" => quantity,
+         "f" => _first_trade_ID,
+         "l" => _last_trade_ID,
+         "T" => trade_time,
+         "m" => is_the_buyer_the_market_maker,
+         "M" => _ignore
        }) do
     %{
       event_type: event_type,

@@ -13,11 +13,10 @@ defmodule Trader.Binance.CandleTicker do
     {:via, :gproc, {:n, :l, {:symbol, symbol, __MODULE__}}}
   end
 
-  def handle_frame({_type, msg}, _state) do
-    candle =
-      Poison.decode!(msg)
-      |> to_candle
-      |> Notify.candle
+  def handle_frame({_type, msg}, state) do
+    Poison.decode!(msg)
+    |> to_candle
+    |> Notify.candle()
 
     {:ok, state}
   end

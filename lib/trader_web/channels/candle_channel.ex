@@ -10,11 +10,12 @@ defmodule TraderWeb.CandleChannel do
   end
 
   def handle_info({:candle, candle}, state) do
-    #Logger.info("Got a candle for #{candle.symbol}")
+    # Logger.info("Got a candle for #{candle.symbol}")
     room = "candle:#{candle.symbol}"
     TraderWeb.Endpoint.broadcast(room, "candle_update", candle)
     {:noreply, state}
   end
+
   def handle_info({:agg_trade, trade}, state) do
     Logger.info("Got an aggTrade for #{trade.symbol}")
     {:noreply, state}
