@@ -4,9 +4,11 @@ defmodule Trader.Order.Binance do
 
   defp get_binance(url, params \\ [], binance_auth \\ %{}) do
     signed = sign(params, binance_auth)
+
     case HTTPoison.get("#{@endpoint}#{url}?#{signed.query}", signed.headers) do
       {:error, err} ->
         {:error, {:http_error, err}}
+
       {:ok, response} ->
         case Poison.decode(response.body) do
           {:ok, data} -> {:ok, data}
@@ -17,10 +19,12 @@ defmodule Trader.Order.Binance do
 
   defp post_binance(url, params, binance_auth) do
     signed = sign(params, binance_auth)
-    Logger.info inspect signed
+    Logger.info(inspect(signed))
+
     case HTTPoison.post("#{@endpoint}#{url}", signed.query, signed.headers) do
       {:error, err} ->
         {:error, {:http_error, err}}
+
       {:ok, response} ->
         case Poison.decode(response.body) do
           {:ok, data} -> {:ok, data}
@@ -30,30 +34,32 @@ defmodule Trader.Order.Binance do
   end
 
   def sign(params, binance_access) when binance_access == %{} do
-    %{query: "#{create_query_string(params)}", headers:  [] }
+    %{query: "#{create_query_string(params)}", headers: []}
   end
 
   def sign(params, binance_access) do
-    signature = params
+    signature =
+      params
       |> create_query_string
       |> calculate_signature(binance_access)
 
-    query = params ++ [signature: signature]
+    query =
+      (params ++ [signature: signature])
       |> create_query_string
 
-    %{query: "#{query}", headers:  [{"X-MBX-APIKEY", binance_access.key}] }
+    %{query: "#{query}", headers: [{"X-MBX-APIKEY", binance_access.key}]}
   end
 
   def create_query_string(params) do
     params
-      |> Enum.map(fn x -> Tuple.to_list(x) |> Enum.join("=") end)
-      |> Enum.join("&")
+    |> Enum.map(fn x -> Tuple.to_list(x) |> Enum.join("=") end)
+    |> Enum.join("&")
   end
 
   def calculate_signature(aString, binance_access) do
-      :crypto.hmac(:sha256, binance_access.secret, aString)
-        |> Base.encode16()
-        |> String.downcase
+    :crypto.hmac(:sha256, binance_access.secret, aString)
+    |> Base.encode16()
+    |> String.downcase()
   end
 
   # Server
@@ -126,11 +132,15 @@ defmodule Trader.Order.Binance do
   ```
   """
   def get_ticker(symbol) when is_binary(symbol) do
-    get_binance("/api/v1/ticker/24hr", [symbol: symbol])
+    get_binance("/api/v1/ticker/24hr", symbol: symbol)
   end
 
   def user_info(binance_access) do
-    case get_binance("/api/v3/account", [timestamp: :os.system_time(:millisecond)], binance_access) do
+    case get_binance(
+           "/api/v3/account",
+           [timestamp: :os.system_time(:millisecond)],
+           binance_access
+         ) do
       {:ok, info} -> info
       all -> all
     end
@@ -138,14 +148,14 @@ defmodule Trader.Order.Binance do
 
   def get_balance(binance_access, symbol) do
     user_info(binance_access)
-      |> get_balance_from_account_info(symbol)
+    |> get_balance_from_account_info(symbol)
   end
 
   def get_balance_from_account_info(user_info, symbol) do
     user_info["balances"]
-      |> Enum.filter(&(&1["asset"] == symbol))
-      |> List.first
-      |> Map.get("free")
+    |> Enum.filter(&(&1["asset"] == symbol))
+    |> List.first()
+    |> Map.get("free")
   end
 
   # Order
@@ -201,7 +211,9 @@ defmodule Trader.Order.Binance do
     case post_binance("/api/v3/order/test", arguments, binance_auth) do
       {:ok, %{"code" => code, "msg" => msg}} ->
         {:error, {:binance_error, %{code: code, msg: msg}}}
-      data -> data
+
+      data ->
+        data
     end
   end
 
@@ -261,5 +273,4 @@ defmodule Trader.Order.Binance do
       when is_number(quantity) do
     create_order(binance_auth, symbol, "SELL", "MARKET", quantity)
   end
-
 end

@@ -6,7 +6,7 @@ defmodule TraderWeb.UserController do
   alias Trader.Auth.User
   alias Trader.Auth.Role
 
-  plug :scrub_params, "user" when action in [:create]
+  plug(:scrub_params, "user" when action in [:create])
 
   def new(conn, _params) do
     changeset = Auth.change_user(%User{})
@@ -14,17 +14,20 @@ defmodule TraderWeb.UserController do
   end
 
   def create(conn, %{"user" => user_params}) do
-    role = Repo.all(Role)
+    role =
+      Repo.all(Role)
       |> Enum.filter(&(!&1.admin))
-      |> List.first
+      |> List.first()
 
     user_params = Map.put(user_params, "role_id", role.id)
+
     case Auth.create_user(user_params) do
       {:ok, user} ->
         conn
         |> put_flash(:info, "User created successfully.")
         |> Trader.Auth.Guardian.Plug.sign_in(user)
         |> redirect(to: user_path(conn, :show))
+
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
     end
@@ -49,6 +52,7 @@ defmodule TraderWeb.UserController do
         conn
         |> put_flash(:info, "User updated successfully.")
         |> redirect(to: user_path(conn, :show))
+
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", changeset: changeset)
     end
@@ -63,5 +67,4 @@ defmodule TraderWeb.UserController do
     |> put_flash(:info, "User deleted successfully.")
     |> redirect(to: page_path(conn, :index))
   end
-
 end

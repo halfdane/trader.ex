@@ -6,7 +6,7 @@ defmodule TraderWeb.AdminUserController do
   alias Trader.Auth.User
   alias Trader.Auth.Role
 
-  plug :scrub_params, "user" when action in [:create]
+  plug(:scrub_params, "user" when action in [:create])
 
   def index(conn, _params) do
     users = Auth.list_users()
@@ -19,16 +19,19 @@ defmodule TraderWeb.AdminUserController do
   end
 
   def create(conn, %{"user" => user_params}) do
-    role = Repo.all(Role)
+    role =
+      Repo.all(Role)
       |> Enum.filter(&(!&1.admin))
-      |> List.first
+      |> List.first()
 
     user_params = Map.put(user_params, "role_id", role.id)
+
     case Auth.create_user(user_params) do
       {:ok, user} ->
         conn
         |> put_flash(:info, "User created successfully.")
         |> redirect(to: admin_user_path(conn, :show, user))
+
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "new.html", changeset: changeset)
     end
@@ -53,6 +56,7 @@ defmodule TraderWeb.AdminUserController do
         conn
         |> put_flash(:info, "User updated successfully.")
         |> redirect(to: admin_user_path(conn, :show, user))
+
       {:error, %Ecto.Changeset{} = changeset} ->
         render(conn, "edit.html", user: user, changeset: changeset)
     end
@@ -66,5 +70,4 @@ defmodule TraderWeb.AdminUserController do
     |> put_flash(:info, "User deleted successfully.")
     |> redirect(to: admin_user_path(conn, :index))
   end
-
 end

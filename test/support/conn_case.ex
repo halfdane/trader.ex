@@ -25,21 +25,29 @@ defmodule TraderWeb.ConnCase do
       @endpoint TraderWeb.Endpoint
 
       def guardian_login(%Plug.Conn{} = conn, user), do: guardian_login(conn, user, :token, [])
-      def guardian_login(%Plug.Conn{} = conn, user, token), do: guardian_login(conn, user, token, [])
-      def guardian_login(%Plug.Conn{} = conn, %Trader.Auth.User{username: username, password: password}, token, opts) do
+
+      def guardian_login(%Plug.Conn{} = conn, user, token),
+        do: guardian_login(conn, user, token, [])
+
+      def guardian_login(
+            %Plug.Conn{} = conn,
+            %Trader.Auth.User{username: username, password: password},
+            token,
+            opts
+          ) do
         conn
-          |> post(session_path(conn, :create), session: %{username: username, password: password})
+        |> post(session_path(conn, :create), session: %{username: username, password: password})
       end
     end
   end
 
-
   setup tags do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(Trader.Repo)
+
     unless tags[:async] do
       Ecto.Adapters.SQL.Sandbox.mode(Trader.Repo, {:shared, self()})
     end
+
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
-
 end

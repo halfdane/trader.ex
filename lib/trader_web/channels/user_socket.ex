@@ -2,11 +2,10 @@ defmodule TraderWeb.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  channel "candle:*", TraderWeb.CandleChannel
+  channel("candle:*", TraderWeb.CandleChannel)
 
   ## Transports
-  transport :websocket, Phoenix.Transports.WebSocket,
-    timeout: 45_500
+  transport(:websocket, Phoenix.Transports.WebSocket, timeout: 45_500)
   # transport :longpoll, Phoenix.Transports.LongPoll
 
   # Socket params are passed from the client and can

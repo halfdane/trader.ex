@@ -19,11 +19,12 @@ defmodule Trader.AuthTest do
       {:ok, user} =
         with_role(@valid_attrs, role)
         |> Auth.create_user()
+
       user
     end
 
     setup do
-      {:ok, user_role}  = TestHelper.create_role(%{name: "user", admin: false})
+      {:ok, user_role} = TestHelper.create_role(%{name: "user", admin: false})
       {:ok, user_role: user_role}
     end
 
@@ -38,18 +39,19 @@ defmodule Trader.AuthTest do
     end
 
     test "create_user/1 with valid data creates a user", %{user_role: user_role} do
-      assert {:ok, %User{} = user} = Auth.create_user(@valid_attrs|>with_role(user_role))
+      assert {:ok, %User{} = user} = Auth.create_user(@valid_attrs |> with_role(user_role))
       assert user.username == "some username"
       assert Comeonin.Bcrypt.checkpw(@valid_attrs.password, user.password)
     end
 
     test "create_user/1 with invalid data returns error changeset", %{user_role: user_role} do
-      assert {:error, %Ecto.Changeset{}} = Auth.create_user(@invalid_attrs|>with_role(user_role))
+      assert {:error, %Ecto.Changeset{}} =
+               Auth.create_user(@invalid_attrs |> with_role(user_role))
     end
 
     test "update_user/2 with valid data updates the user", %{user_role: user_role} do
       user = user_fixture(user_role)
-      assert {:ok, user} = Auth.update_user(user, @update_attrs|>with_role(user_role))
+      assert {:ok, user} = Auth.update_user(user, @update_attrs |> with_role(user_role))
       assert %User{} = user
       assert Comeonin.Bcrypt.checkpw(@update_attrs.password, user.password)
       assert user.username == "some updated username"
@@ -58,7 +60,10 @@ defmodule Trader.AuthTest do
 
     test "update_user/2 with invalid data returns error changeset", %{user_role: user_role} do
       user = user_fixture(user_role)
-      assert {:error, %Ecto.Changeset{}} = Auth.update_user(user, @invalid_attrs|>with_role(user_role))
+
+      assert {:error, %Ecto.Changeset{}} =
+               Auth.update_user(user, @invalid_attrs |> with_role(user_role))
+
       assert user == Auth.get_user!(user.id)
     end
 

@@ -104,15 +104,20 @@ defmodule Trader.Auth do
   end
 
   def authenticate_user(username, plain_text_password) do
-    query = from u in User,
-      where: u.username == ^username,
-      left_join: role in assoc(u, :role),
-      preload: [role: role]
+    query =
+      from(
+        u in User,
+        where: u.username == ^username,
+        left_join: role in assoc(u, :role),
+        preload: [role: role]
+      )
+
     Repo.one(query)
     |> check_password(plain_text_password)
   end
 
   defp check_password(nil, _), do: {:error, "Incorrect username or password"}
+
   defp check_password(user, plain_text_password) do
     case Bcrypt.checkpw(plain_text_password, user.password) do
       true -> {:ok, user}

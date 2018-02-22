@@ -92,5 +92,4 @@ defmodule Trader.Testdata do
         ]
       }]
     }"
-
 end

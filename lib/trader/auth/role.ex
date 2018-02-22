@@ -3,12 +3,11 @@ defmodule Trader.Auth.Role do
   import Ecto.Changeset
   alias Trader.Auth.Role
 
-
   schema "roles" do
-    field :admin, :boolean, default: false
-    field :name, :string
+    field(:admin, :boolean, default: false)
+    field(:name, :string)
 
-    has_many :users, Trader.Auth.User
+    has_many(:users, Trader.Auth.User)
 
     timestamps()
   end

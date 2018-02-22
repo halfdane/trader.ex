@@ -2,7 +2,9 @@ defmodule TraderWeb.PageControllerTest do
   use TraderWeb.ConnCase
 
   test "GET /", %{conn: conn} do
-    conn = get conn, "/"
-    assert html_response(conn, 200) =~ "The risk averse way<br />to day-trade shitcoins on binance."
+    conn = get(conn, "/")
+
+    assert html_response(conn, 200) =~
+             "The risk averse way<br />to day-trade shitcoins on binance."
   end
 end

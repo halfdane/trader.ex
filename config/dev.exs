@@ -11,8 +11,14 @@ config :trader, TraderWeb.Endpoint,
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
-  watchers: [node: ["node_modules/brunch/bin/brunch", "watch", "--stdin",
-                    cd: Path.expand("../assets", __DIR__)]]
+  watchers: [
+    node: [
+      "node_modules/brunch/bin/brunch",
+      "watch",
+      "--stdin",
+      cd: Path.expand("../assets", __DIR__)
+    ]
+  ]
 
 # ## SSL Support
 #
@@ -58,18 +64,14 @@ config :trader, Trader.Repo,
   pool_size: 10
 
 config :trader, Trader.Auth.Guardian,
-  issuer: "Trader", # Name of your app/company/product
+  # Name of your app/company/product
+  issuer: "Trader",
   secret_key: "LEqB8QT2M9KfGlkuKtyZHcjloy2W+Zts5d1FRFdBvM5EkIPykaj+7YJLzU30f4DU"
 
-config :trader, Trader.CandleTicker,
-  max_symbol_count: 2
+config :trader, Trader.CandleTicker, max_symbol_count: 2
 
-config :trader, Trader.SupportedSymbols,
-  symbols: ["ETHBTC", "LTCBTC"]
-
+config :trader, Trader.SupportedSymbols, symbols: ["ETHBTC", "LTCBTC"]
 
 config :comeonin, bcrypt_log_rounds: 1
 
-config :mix_test_watch,
-    clear: true
-
+config :mix_test_watch, clear: true
