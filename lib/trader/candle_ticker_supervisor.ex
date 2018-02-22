@@ -33,7 +33,6 @@ defmodule Trader.CandleTicker.Supervisor.Starter do
     {:ok, symbols} = ExchangeInfo.get_symbols()
     symbols
       |> Enum.map(&(&1.symbol))
-      |> restrict_tickers
       |> Enum.map(&Trader.CandleTicker.Supervisor.start_ticker/1)
   end
 
@@ -41,14 +40,6 @@ defmodule Trader.CandleTicker.Supervisor.Starter do
     Task.start_link(fn() ->
       Trader.CandleTicker.Supervisor.start_ticker(symbol)
    end)
-  end
-
-  defp restrict_tickers(all_symbols) do
-    max_symbol_count = Application.get_env(:trader, Trader.CandleTicker)[:max_symbol_count]
-    case max_symbol_count do
-      x when x > 0 -> Enum.slice(all_symbols, 0, x)
-      _            -> all_symbols
-    end
   end
 
 end

@@ -64,5 +64,12 @@ config :trader, Trader.Auth.Guardian,
 config :trader, Trader.CandleTicker,
   max_symbol_count: 2
 
+config :trader, Trader.SupportedSymbols,
+  symbols: ["ETHBTC", "LTCBTC"]
+
 
 config :comeonin, bcrypt_log_rounds: 1
+
+config :mix_test_watch,
+    clear: true
+

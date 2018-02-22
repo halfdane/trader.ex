@@ -49,4 +49,11 @@ defmodule Trader.Binance.ExchangeInfoHelperTest do
     assert ethbtc_lot.maxQty == 100000.00000000
     assert ethbtc_lot.stepSize == 0.00100000
   end
+
+  test "reduce exchange info to given symbols", %{exchange_info: info} do
+    filtered = info
+      |> ExchangeInfoHelper.reduce_to(["ETHBTC"])
+    assert ExchangeInfoHelper.get_symbol_info(filtered, "ETHBTC")
+    refute ExchangeInfoHelper.get_symbol_info(filtered, "LTCBTC")
+  end
 end

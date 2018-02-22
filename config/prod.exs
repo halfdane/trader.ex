@@ -37,6 +37,9 @@ config :trader, Trader.Auth.Guardian,
 config :trader, Trader.CandleTicker,
   max_symbol_count: -1
 
+config :trader, Trader.SupportedSymbols,
+  symbols: ["ETHBTC"]
+
 config :comeonin, bcrypt_log_rounds: 14
 
 # ## SSL Support

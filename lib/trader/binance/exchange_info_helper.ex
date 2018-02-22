@@ -11,6 +11,12 @@ defmodule Trader.Binance.ExchangeInfoHelper do
       |> List.first
   end
 
+  def reduce_to(exchange_info, supported_symbols) do
+    filtered_symbols = exchange_info.symbols
+      |> Enum.filter(&(&1.symbol in supported_symbols))
+    Map.put(exchange_info, :symbols, filtered_symbols)
+  end
+
   def get_price_filter(exchange_info, symbol), do: get_filter_info(exchange_info, symbol, "PRICE_FILTER")
   def get_lot_size(exchange_info, symbol), do: get_filter_info(exchange_info, symbol, "LOT_SIZE")
   def get_min_notional(exchange_info, symbol), do: get_filter_info(exchange_info, symbol, "MIN_NOTIONAL")
