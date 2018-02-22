@@ -6,6 +6,9 @@ defmodule TraderWeb.OrdersController do
   def create(conn, %{"order" => %{"symbol" => symbol, "buy_price" => buy_price}}) do
     user = conn.assigns.current_user
 
+    {:ok, info} = Trader.Binance.ExchangeInfo.get_symbol(symbol)
+    Trader.Order.Binance.order_limit_buy(binance_access, symbol, valid_lot, valid_price) |> log
+
     Trader.Signal.OverThreshold.start_link(%{
       symbol: symbol,
       threshold: String.to_float(buy_price),
@@ -22,7 +25,6 @@ defmodule TraderWeb.OrdersController do
 
     # valid_lot = OrderHelper.valid_lot(String.to_float(all), info)
 
-    # Trader.Order.Binance.order_limit_buy(binance_access, symbol, valid_lot, valid_price) |> log
     # Trader.Order.Binance.order_limit_sell(binance_access, symbol, valid_lot, valid_lower_limit) |> log
     # Trader.Order.Binance.order_limit_sell(binance_access, symbol, valid_lot, valid_upper_limit) |> log
 
