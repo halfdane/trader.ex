@@ -5,7 +5,7 @@ defmodule TraderWeb.CandleChannel do
 
   def join("candle:" <> symbol, _params, socket) do
     Notify.sub_candles(symbol)
-    Notify.sub_agg_trades(symbol)
+    #    Notify.sub_agg_trades(symbol)
     {:ok, socket}
   end
 
@@ -17,7 +17,7 @@ defmodule TraderWeb.CandleChannel do
   end
 
   def handle_info({:agg_trade, trade}, state) do
-    Logger.info("Got an aggTrade for #{trade.symbol}")
+    Logger.info("aggTrade #{inspect(trade)} for #{trade.symbol}")
     {:noreply, state}
   end
 end

@@ -19,7 +19,6 @@ defmodule Trader.Order.Binance do
 
   defp post_binance(url, params, binance_auth) do
     signed = sign(params, binance_auth)
-    Logger.info(inspect(signed))
 
     case HTTPoison.post("#{@endpoint}#{url}", signed.query, signed.headers) do
       {:error, err} ->

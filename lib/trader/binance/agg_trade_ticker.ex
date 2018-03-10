@@ -21,6 +21,13 @@ defmodule Trader.Binance.AggTradeTicker do
     {:ok, state}
   end
 
+  defp send_notify(%{is_market_maker: is_market_maker} = trade) when is_market_maker do
+    Notify.agg_trade(trade)
+    trade
+  end
+
+  defp send_notify(trade), do: nil
+
   defp to_agg_trade(%{
          # aggTrade
          "e" => event_type,

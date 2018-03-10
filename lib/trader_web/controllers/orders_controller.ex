@@ -3,30 +3,31 @@ defmodule TraderWeb.OrdersController do
   alias Trader.Binance.OrderHelper
   require Logger
 
-  def create(conn, %{"order" => %{"symbol" => symbol, "buy_price" => buy_price}}) do
+  def create(conn, %{"order" => %{"symbol" => symbol, "buy_price" => price}}) do
+    # create access-info thingie from user
     user = conn.assigns.current_user
 
-    #    {:ok, info} = Trader.Binance.ExchangeInfo.get_symbol(symbol)
-    # Trader.Order.Binance.order_limit_buy(binance_access, symbol, valid_lot, valid_price) |> log
+    binance_auth = %{
+      key: user.binance_api_key,
+      secret: user.binance_api_secret
+    }
 
+    # prepare order and place it
+    {:ok, info} = Trader.Binance.ExchangeInfo.get_symbol(symbol)
+    all = Trader.Order.Binance.get_balance(binance_auth, info.baseAsset)
+    valid_lot = OrderHelper.valid_lot(String.to_float(all), info)
+    valid_price = OrderHelper.valid_price(String.to_float(price), info)
+    Logger.info("Buying #{valid_lot}, #{valid_price}")
+    res = Trader.Order.Binance.order_limit_buy(binance_auth, symbol, valid_lot, valid_price)
+    Logger.info("#{inspect(res)}")
+
+    # if price rises or falls, sell it
     Trader.Signal.OverThreshold.start_link(%{
       symbol: symbol,
-      threshold: String.to_float(buy_price),
-      api_key: user.binance_api_key,
-      api_secret: user.binance_api_secret
+      upper_threshold: String.to_float(price),
+      lower_threshold: String.to_float(price),
+      binance_auth: binance_auth
     })
-
-    # {:ok, info} = Trader.Binance.ExchangeInfo.get_symbol(symbol)
-    # all = Trader.Order.Binance.get_balance(binance_access, info.baseAsset)
-
-    # valid_price = OrderHelper.valid_price(String.to_float(buy_price), info)
-    # valid_upper_limit = OrderHelper.valid_price(String.to_float(upper_limit), info)
-    # valid_lower_limit = OrderHelper.valid_price(String.to_float(lower_limit), info)
-
-    # valid_lot = OrderHelper.valid_lot(String.to_float(all), info)
-
-    # Trader.Order.Binance.order_limit_sell(binance_access, symbol, valid_lot, valid_lower_limit) |> log
-    # Trader.Order.Binance.order_limit_sell(binance_access, symbol, valid_lot, valid_upper_limit) |> log
 
     redirect(conn, to: coin_path(conn, :index, symbol))
   end
